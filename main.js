@@ -1,4 +1,4 @@
-import {hyper, wire, bind, Component} from './node_modules/hyperhtml/esm.js'
+import {hyper, wire, bind, Component} from './hyperhtml.js'
 
 main()
 
