@@ -1,0 +1,36 @@
+html {
+  font-family: Lucida Grande, Helvetica, sans-serif;
+}
+
+body {
+  margin: 0;
+}
+
+.app {
+  box-sizing: border-box;
+  padding: 3em;
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  height: 100vh;
+}
+
+.row {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: row;
+}
+
+.cell {
+  margin: 1em;
+  text-align: center;
+  flex: 1 0 auto;
+}
+
+.temperature {
+  font-size: 160%;
+}
+
+.icon {
+  font-size: 50px;
+}
