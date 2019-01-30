@@ -19,7 +19,10 @@ async function update () {
 
 function getUrl () {
   const hash = window.location.hash.substring(1) || '52.51925,13.40881?units=si'
-  return `https://darksky-proxy.herokuapp.com/${hash}`
+  const local = window.location.protocol === 'file:' ||
+    window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1'
+  return local ? 'weather.json' : `https://darksky-proxy.herokuapp.com/${hash}`
 }
 
 async function fetchWeather (url) {
