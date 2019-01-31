@@ -32,16 +32,16 @@ async function fetchWeather (url) {
 
 function App (weather) {
   return wire(weather)`
-    ${Temperatures(weather.currently)}
+    ${Currently(weather.currently)}
     ${Hourly(weather.hourly)}
     ${Daily(weather.daily)}
   `
 }
 
-function Temperatures (currently) {
+function Currently (currently) {
   return wire(currently)`
-    <div class="temperatures row">
-      <div class="temperature">${currently.temperature}</div>
+    <div class="currently row">
+      <div class="temperature">${Math.round(currently.temperature)}</div>
     </div>
   `
 }

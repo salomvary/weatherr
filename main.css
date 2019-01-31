@@ -15,10 +15,15 @@ body {
   height: 100vh;
 }
 
+.currently .temperature {
+  font-size: 1000%;
+}
+
 .row {
   flex: 1 0 auto;
   display: flex;
   flex-direction: row;
+  overflow-x: auto;
 }
 
 .cell {
@@ -27,10 +32,16 @@ body {
   flex: 1 0 auto;
 }
 
-.temperature {
+.cell .temperature {
+  margin: 0.2em;
   font-size: 160%;
 }
 
-.icon {
+.temperature::after {
+  content: '°'
+}
+
+.cell .icon {
   font-size: 50px;
+  margin: 0.25em 0;
 }
