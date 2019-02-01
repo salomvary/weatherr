@@ -28,7 +28,8 @@ function getUrl () {
   const hash = window.location.hash.substring(1) || '52.51925,13.40881?units=si'
   const local = window.location.protocol === 'file:' ||
     window.location.hostname === 'localhost' ||
-    window.location.hostname === '127.0.0.1'
+    window.location.hostname === '127.0.0.1' ||
+    window.location.hostname.startsWith('192.168.')
   return local ? 'weather.json' : `https://darksky-proxy.herokuapp.com/${hash}`
 }
 
