@@ -5,9 +5,16 @@ main()
 async function main () {
   await update()
 
-  window.addEventListener('hashchange', function () {
-    update()
+  const updateInterval = 60 * 60 * 1000
+  let updateIntervalHandle
+
+  window.addEventListener('hashchange', async function () {
+    await update()
+    clearInterval(updateIntervalHandle)
+    updateIntervalHandle = setInterval(update, updateInterval)
   })
+
+  updateIntervalHandle = setInterval(update, updateInterval)
 }
 
 async function update () {
