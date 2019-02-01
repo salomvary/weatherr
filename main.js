@@ -111,8 +111,10 @@ function Day (day) {
     <div class="day cell">
       <div>${formatDay(new Date(day.time * 1000))}</div>
       <div>${formatDate(new Date(day.time * 1000))}</div>
-      <div class="temperature">${Math.round(day.temperatureHigh)}</div>
-      <div class="temperature">${Math.round(day.temperatureLow)}</div>
+      <div class="temperatures">
+        <div class="temperature">${Math.round(day.temperatureHigh)}</div>
+        <div class="temperature">${Math.round(day.temperatureLow)}</div>
+      </div>
       <div class="icon">${Icon({icon: day.icon})}</div>
     </div>
   `

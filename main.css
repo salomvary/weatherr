@@ -4,11 +4,12 @@ html {
 
 body {
   margin: 0;
+  font-size: 12px;
 }
 
 .app {
   box-sizing: border-box;
-  padding: 3em;
+  padding: 20px;
   display: flex;
   flex-direction: column;
   width: 100vw;
@@ -16,7 +17,7 @@ body {
 }
 
 .currently .temperature {
-  font-size: 1000%;
+  font-size: 100px;
 }
 
 .row {
@@ -32,9 +33,21 @@ body {
   flex: 1 0 auto;
 }
 
+.cell:first-child {
+  margin-left: 0;
+}
+
+.cell:last-child {
+  margin-right: 0;
+}
+
 .cell .temperature {
   margin: 0.2em;
-  font-size: 160%;
+  font-size: 20px;
+}
+
+.temperatures {
+  margin: 1em 0;
 }
 
 .temperature::after {
@@ -42,6 +55,6 @@ body {
 }
 
 .cell .icon {
-  font-size: 50px;
+  font-size: 38px;
   margin: 0.25em 0;
 }
