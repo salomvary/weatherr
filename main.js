@@ -1,26 +1,48 @@
 import {hyper, wire, bind, Component} from './hyperhtml.js'
 
+const icons = {
+  'clear-day': 'wi-day-sunny',
+  'clear-night': 'wi-night-clear',
+  'rain': 'wi-rain',
+  'snow': 'wi-snow',
+  'sleet': 'wi-sleet',
+  'wind': 'wi-windy',
+  'fog': 'wi-fog',
+  'cloudy': 'wi-cloudy',
+  'partly-cloudy-day': 'wi-day-cloudy',
+  'partly-cloudy-night': 'wi-night-cloudy',
+}
+
 main()
 
 async function main () {
-  await update()
+  await update(true)
 
   const updateInterval = 60 * 60 * 1000
   let updateIntervalHandle
 
   window.addEventListener('hashchange', async function () {
-    await update()
+    await update(true)
     clearInterval(updateIntervalHandle)
-    updateIntervalHandle = setInterval(update, updateInterval)
+    updateIntervalHandle = setInterval(() => update(), updateInterval)
   })
 
-  updateIntervalHandle = setInterval(update, updateInterval)
+  updateIntervalHandle = setInterval(() => update(), updateInterval)
 }
 
-async function update () {
-  const weather = await fetchWeather(getUrl())
+async function update (showLoading) {
+  const response = fetchWeather(getUrl())
+
+  if (showLoading) {
+    bind(document.querySelector('.app'))`
+      ${App({loading: true})}
+    `
+  }
+
+  const weather = await response
+
   bind(document.querySelector('.app'))`
-    ${App(weather)}
+    ${App({weather})}
   `
 }
 
@@ -38,7 +60,22 @@ async function fetchWeather (url) {
   return await response.json()
 }
 
-function App (weather) {
+function App (state) {
+  return wire(state)`
+    ${state.loading ? Loading() : Weather(state.weather)}
+  `
+}
+
+function Loading () {
+  return wire()`
+    <div class="loading">
+      ${Icon({icon: 'clear-day', class: 'loading-icon'})}
+      <p>Predicting the unpredictable…</p>
+    </div>
+  `
+}
+
+function Weather (weather) {
   const [today] = weather.daily.data
   return wire(weather)`
     ${Currently(weather.currently, today || {})}
@@ -146,19 +183,6 @@ function Day (day) {
   `
 }
 
-const icons = {
-  'clear-day': 'wi-day-sunny',
-  'clear-night': 'wi-night-clear',
-  'rain': 'wi-rain',
-  'snow': 'wi-snow',
-  'sleet': 'wi-sleet',
-  'wind': 'wi-windy',
-  'fog': 'wi-fog',
-  'cloudy': 'wi-cloudy',
-  'partly-cloudy-day': 'wi-day-cloudy',
-  'partly-cloudy-night': 'wi-night-cloudy',
-}
-
 function Icon(props) {
-  return wire(props)`<i class=${['wi', icons[props.icon]].join(' ')}></i>`
+  return wire(props)`<i class=${['wi', icons[props.icon], props.class].join(' ')}></i>`
 }

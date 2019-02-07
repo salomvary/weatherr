@@ -18,6 +18,33 @@ body {
 }
 
 /*
+ * Loading screen
+ */
+
+.loading {
+  text-align: center;
+  font-size: 14px;
+}
+
+.loading p {
+  margin: 50px 0;
+}
+
+.loading-icon {
+  font-size: 150px;
+  animation: rotation 5s infinite linear;
+}
+
+@keyframes rotation {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(359deg);
+  }
+}
+
+/*
  * Current conditions section
  */
 
@@ -90,6 +117,9 @@ body {
   margin: 0.25em 0;
 }
 
+/*
+ * Misc
+ */
 
 .temperature::after {
   content: '°'
