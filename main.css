@@ -12,49 +12,85 @@ body {
   padding: 20px;
   display: flex;
   flex-direction: column;
+  justify-content: space-around;
   width: 100vw;
   height: 100vh;
 }
 
-.currently .temperature {
+/*
+ * Current conditions section
+ */
+
+.currently {
+  display: flex;
+}
+
+.currently > div {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: center;
+}
+
+.currently-details {
+  margin-left: 20px;
+}
+
+.currently-temperature {
   font-size: 100px;
 }
 
-.row {
-  flex: 1 0 auto;
+.currently-icon {
+  margin: 0.2em 0;
+  font-size: 80px;
+}
+
+.currently-highlow,
+.currently-summary {
+  text-align: center;
+  font-size: 14px;
+}
+
+/*
+ * Forecast sections
+ */
+
+.forecast {
   display: flex;
   flex-direction: row;
   overflow-x: auto;
 }
 
-.cell {
+.forecast-item {
   margin: 1em;
   text-align: center;
   flex: 1 0 auto;
 }
 
-.cell:first-child {
+.forecast-item:first-child {
   margin-left: 0;
 }
 
-.cell:last-child {
+.forecast-item:last-child {
   margin-right: 0;
 }
 
-.cell .temperature {
+.forecast-item-temperature {
+  display: block;
   margin: 0.2em;
   font-size: 20px;
 }
 
-.temperatures {
+.forecast-item-highlow {
   margin: 1em 0;
 }
 
-.temperature::after {
-  content: '°'
-}
-
-.cell .icon {
+.forecast-item-icon {
   font-size: 38px;
   margin: 0.25em 0;
+}
+
+
+.temperature::after {
+  content: '°'
 }

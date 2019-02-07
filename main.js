@@ -39,24 +39,37 @@ async function fetchWeather (url) {
 }
 
 function App (weather) {
+  const [today] = weather.daily.data
   return wire(weather)`
-    ${Currently(weather.currently)}
+    ${Currently(weather.currently, today || {})}
     ${Hourly(weather.hourly)}
     ${Daily(weather.daily)}
   `
 }
 
-function Currently (currently) {
+function Currently (currently, today) {
   return wire(currently)`
-    <div class="currently row">
-      <div class="temperature">${Math.round(currently.temperature)}</div>
+    <div class="currently">
+      <div class="currently-temperatures">
+        <div class="currently-temperature">
+          ${Temperature({value: currently.temperature})}
+        </div>
+        <div class="currently-highlow">
+          High ${Temperature({value: today.temperatureHigh})}
+          Low ${Temperature({value: today.temperatureLow})}
+        </div>
+      </div>
+      <div class="currently-details">
+        <div class="currently-icon">${Icon({icon: currently.icon})}</div>
+        <div class="currently-summary">${currently.summary}</div>
+      </div>
     </div>
   `
 }
 
 function Hourly (hourly) {
   return wire(hourly)`
-    <div class="hourly row">
+    <div class="forecast">
       ${hourly.data.map(Hour)}
     </div>
   `
@@ -64,19 +77,27 @@ function Hourly (hourly) {
 
 function Hour (hour) {
   return wire(hour)`
-    <div class="hour cell">
+    <div class="forecast-item">
       <div>${formatHour(new Date(hour.time * 1000))}</div>
-      <div class="temperature">${Math.round(hour.temperature)}</div>
-      <div class="icon">${Icon({icon: hour.icon})}</div>
+      <div class="forecast-item-temperature">
+        ${Temperature({value: hour.temperature})}
+      </div>
+      <div class="forecast-item-icon">${Icon({icon: hour.icon})}</div>
     </div>
   `
 }
 
 function Daily (daily) {
   return wire(daily)`
-    <div class="daily row">
+    <div class="forecast">
       ${daily.data.map(Day)}
     </div>
+  `
+}
+
+function Temperature (props) {
+  return wire(props)`
+    <span class="temperature">${Math.round(props.value)}</span>
   `
 }
 
@@ -109,14 +130,18 @@ function isNextDay (now, date, offset) {
 
 function Day (day) {
   return wire(day)`
-    <div class="day cell">
+    <div class="forecast-item">
       <div>${formatDay(new Date(day.time * 1000))}</div>
       <div>${formatDate(new Date(day.time * 1000))}</div>
-      <div class="temperatures">
-        <div class="temperature">${Math.round(day.temperatureHigh)}</div>
-        <div class="temperature">${Math.round(day.temperatureLow)}</div>
+      <div class="forecast-item-highlow">
+        <div class="forecast-item-temperature">
+          ${Temperature({value: day.temperatureHigh})}
+        </div>
+        <div class="forecast-item-temperature">
+          ${Temperature({value: day.temperatureLow})}
+        </div>
       </div>
-      <div class="icon">${Icon({icon: day.icon})}</div>
+      <div class="forecast-item-icon">${Icon({icon: day.icon})}</div>
     </div>
   `
 }
