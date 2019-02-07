@@ -49,7 +49,7 @@ function App (weather) {
 
 function Currently (currently, today) {
   return wire(currently)`
-    <div class="currently">
+    <section class="currently">
       <div class="currently-temperatures">
         <div class="currently-temperature">
           ${Temperature({value: currently.temperature})}
@@ -63,15 +63,15 @@ function Currently (currently, today) {
         <div class="currently-icon">${Icon({icon: currently.icon})}</div>
         <div class="currently-summary">${currently.summary}</div>
       </div>
-    </div>
+    </section>
   `
 }
 
 function Hourly (hourly) {
   return wire(hourly)`
-    <div class="forecast">
+    <section class="forecast">
       ${hourly.data.map(Hour)}
-    </div>
+    </section>
   `
 }
 
@@ -89,9 +89,9 @@ function Hour (hour) {
 
 function Daily (daily) {
   return wire(daily)`
-    <div class="forecast">
+    <section class="forecast">
       ${daily.data.map(Day)}
-    </div>
+    </section>
   `
 }
 
