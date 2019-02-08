@@ -39,9 +39,19 @@ body {
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(359deg);
   }
+}
+
+/*
+ * Weather navigation bar
+ */
+
+.weather-nav-location {
+  text-decoration: none;
+  font-size: 14px;
 }
 
 /*
@@ -118,9 +128,116 @@ body {
 }
 
 /*
+ * Location search
+ */
+.location-search {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1 0 auto;
+}
+
+.location-search-panel {
+  display: flex;
+  flex-direction: column;
+  flex: 1 0 auto;
+  max-width: 350px;
+}
+
+.location-search-form {
+  display: flex;
+}
+
+.location-search-form [name=query] {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.location-search-form [type=submit] {
+  min-width: 7.5em;
+}
+
+.location-search-results {
+  margin: 20px 8px;
+  padding: 0;
+  flex: 1 0 auto;
+  list-style: none;
+}
+
+.location-search-result {
+  cursor: pointer;
+  margin: 0;
+  padding: 2px 0;
+  border-bottom: 0.5px solid black;
+}
+
+.location-search-result:last-child {
+  border-bottom: none;
+}
+
+.location-search-result p {
+  margin: 6px 0;
+}
+
+.location-search-name {
+  font-size: 16px;
+}
+
+.location-search-error {
+  font-size: 14px;
+}
+
+/*
+ * Form elements
+ */
+
+.btn {
+  cursor: pointer;
+  background: none;
+}
+
+.btn,
+.input {
+  border: 0.5px solid black;
+  margin: 8px;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 400;
+  padding: 8px 12px;
+}
+
+.btn-flat {
+  border-color: transparent;
+}
+
+/*
+ * Panel top navigation
+ */
+
+.panel-nav {
+  display: flex;
+  justify-content: space-between;
+}
+
+.panel-nav :first-child .btn-flat {
+  padding-left: 0;
+}
+
+/*
  * Misc
  */
 
 .temperature::after {
-  content: '°'
+  content: '°';
+}
+
+:focus {
+  outline: none;
+}
+
+a,
+a:link,
+a:visited,
+a:hover {
+  color: inherit;
 }

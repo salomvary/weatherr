@@ -1,5 +1,11 @@
 import {wire, bind} from './hyperhtml.js'
 
+/**
+ * Configuration
+ */
+
+const updateInterval = 60 * 60 * 1000
+
 const icons = {
   'clear-day': 'wi-day-sunny',
   'clear-night': 'wi-night-clear',
@@ -13,46 +19,88 @@ const icons = {
   'partly-cloudy-night': 'wi-night-cloudy'
 }
 
-main()
+/**
+ * App entry point
+ */
 
-async function main () {
-  await update(true)
+main(bind(document.querySelector('.app')))
 
-  const updateInterval = 60 * 60 * 1000
+async function main (html) {
+  const storedState = loadState()
+  const state = Object.assign({
+    location: {lat: 52.51925, lon: 13.40881, name: 'Berlin'},
+    weather: null,
+    screen: null
+  }, storedState)
+
   let updateIntervalHandle
 
-  window.addEventListener('hashchange', async function () {
-    await update(true)
-    clearInterval(updateIntervalHandle)
-    updateIntervalHandle = setInterval(() => update(), updateInterval)
+  router(async (route) => {
+    stopUpdating()
+    if (route === 'my-location') {
+      state.screen = 'myLocation'
+      render()
+    } else {
+      state.screen = 'loading'
+      render()
+      state.weather = await fetchWeather(getApiUrl(state.location))
+      state.screen = 'weather'
+      render()
+      startUpdating()
+    }
   })
 
-  updateIntervalHandle = setInterval(() => update(), updateInterval)
-}
-
-async function update (showLoading) {
-  const response = fetchWeather(getUrl())
-
-  if (showLoading) {
-    bind(document.querySelector('.app'))`
-      ${App({loading: true})}
-    `
+  function onLocationSelect (location) {
+    state.location = location
+    saveState({location: state.location})
+    window.location.hash = '#'
   }
 
-  const weather = await response
+  function render () {
+    html`${App(state, onLocationSelect)}`
+  }
 
-  bind(document.querySelector('.app'))`
-    ${App({weather})}
-  `
+  function startUpdating () {
+    stopUpdating()
+    updateIntervalHandle = setInterval(async () => {
+      state.weather = await fetchWeather(getApiUrl(state.location))
+      render()
+    }, updateInterval)
+  }
+
+  function stopUpdating () {
+    clearInterval(updateIntervalHandle)
+  }
 }
 
-function getUrl () {
-  const hash = window.location.hash.substring(1) || '52.51925,13.40881?units=si'
+function loadState () {
+  try {
+    return JSON.parse(localStorage.getItem('weather-settings'))
+  } catch (e) {
+    console.error('Can not read storage', e)
+  }
+}
+
+function saveState (state) {
+  try {
+    localStorage.setItem('weather-settings', JSON.stringify(state))
+  } catch (e) {
+    console.error('Can not write storage', e)
+  }
+}
+
+function router (onChange) {
+  const hash = () => window.location.hash.substring(1)
+  window.addEventListener('hashchange', () => onChange(hash()))
+  onChange(hash())
+}
+
+function getApiUrl ({lat, lon}) {
   const local = window.location.protocol === 'file:' ||
     window.location.hostname === 'localhost' ||
     window.location.hostname === '127.0.0.1' ||
     window.location.hostname.startsWith('192.168.')
-  return local ? 'weather.json' : `https://darksky-proxy.herokuapp.com/${hash}`
+  return local ? 'weather.json' : `https://darksky-proxy.herokuapp.com/${lat},${lon}?units=si`
 }
 
 async function fetchWeather (url) {
@@ -60,11 +108,24 @@ async function fetchWeather (url) {
   return response.json()
 }
 
-function App (state) {
-  return wire(state)`
-    ${state.loading ? Loading() : Weather(state.weather)}
-  `
+/**
+ * Root component
+ */
+
+function App (state, onLocationSelect) {
+  return wire(state)`${
+    ({
+      loading: Loading,
+      weather: (state) => Weather(state.weather, state.location),
+      myLocation: () => LocationSearch(onLocationSelect)
+
+    })[state.screen](state)
+  }`
 }
+
+/**
+ * Loading indicator screen component
+ */
 
 function Loading () {
   return wire()`
@@ -75,12 +136,25 @@ function Loading () {
   `
 }
 
-function Weather (weather) {
+/**
+ * Weather component
+ */
+
+function Weather (weather, location) {
   const [today] = weather.daily.data
   return wire(weather)`
+    ${WeatherHeader({location})}
     ${Currently(weather.currently, today || {})}
     ${Hourly(weather.hourly)}
     ${Daily(weather.daily)}
+  `
+}
+
+function WeatherHeader (props) {
+  return wire(props)`
+    <nav class="weather-nav">
+      <a class="weather-nav-location" href="#my-location">${props.location.name}</a>
+    </nav>
   `
 }
 
@@ -185,4 +259,115 @@ function Day (day) {
 
 function Icon (props) {
   return wire(props)`<i class=${['wi', icons[props.icon], props.class].join(' ')}></i>`
+}
+
+/**
+ * Location search component
+ */
+
+function LocationSearch (onResultSelect) {
+  const baseUrl = 'https://nominatim.openstreetmap.org/search'
+  const state = {
+    searching: false,
+    error: null,
+    results: []
+  }
+  const html = wire(state)
+
+  async function onSubmit (event) {
+    event.preventDefault()
+    const query = event.target.query.value.trim()
+    if (query.length === 0) return
+    state.error = null
+    state.results = []
+    state.searching = true
+    render()
+    try {
+      state.results = await fetchResults(query)
+      if (state.results.length === 0) {
+        state.error = `Nothing was found for "${query}" :(`
+      }
+    } catch (e) {
+      state.error = 'Location search failed :('
+      console.error('Error during location search', e)
+    } finally {
+      state.searching = false
+    }
+    render()
+  }
+
+  async function fetchResults (query) {
+    const url = new URL(baseUrl)
+    const params = url.searchParams
+    params.set('format', 'json')
+    params.set('limit', 5)
+    params.set('q', query)
+    const response = await fetch(url)
+    if (response.ok) {
+      const results = await response.json()
+      return results.map(parseAddressResult)
+    } else {
+      throw new Error('Error searching location, status:', response.status)
+    }
+  }
+
+  // eslint-disable-next-line camelcase
+  function parseAddressResult ({lat, lon, display_name}) {
+    // Would be nice to not construct the address by string parsing but
+    // the structured address result is not well documented in Nominatim:
+    // https://help.openstreetmap.org/questions/55122/where-is-nominatim-adress-keys-list
+    const firstComma = display_name.indexOf(',')
+    const name = display_name.substring(0, firstComma)
+    const region = display_name.substring(firstComma + 1).trim()
+    return {
+      // eslint-disable-next-line camelcase
+      name: name || display_name,
+      region,
+      lat,
+      lon
+    }
+  }
+
+  function render () {
+    return html`
+      <section class="location-search">
+        <div class="location-search-panel">
+          <nav class="panel-nav">
+            <a href="#">
+              <button class="btn btn-flat">❬ Weather</button>
+            </a>
+          </nav>
+          <form class="location-search-form" action="" onsubmit=${onSubmit}>
+            <input type="text" name="query" class="input" autofocus autocomplete="off">
+            <button
+              type="submit" class="btn"
+              disabled=${state.searching}
+            >
+              ${state.searching ? 'Searching…' : 'Search'}
+            </button>
+          </form>
+          <ul class="location-search-results">
+            ${state.error ? wire()`
+              <li class="location-search-error">${state.error}</li>
+            ` : null}
+            ${state.results.map((result) => LocationSearchResult(result, onResultSelect))}
+          </ul>
+        </div>
+      </section>
+    `
+  }
+
+  return render()
+}
+
+function LocationSearchResult (result, onResultSelect) {
+  return wire(result)`
+    <li
+      class="location-search-result"
+      onclick=${() => onResultSelect(result)}
+    >
+      <p class="location-search-name">${result.name}</p>
+      <p class="location-search-region">${result.region}</p>
+    </li>
+  `
 }
