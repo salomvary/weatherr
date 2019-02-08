@@ -1,4 +1,4 @@
-import {hyper, wire, bind, Component} from './hyperhtml.js'
+import {wire, bind} from './hyperhtml.js'
 
 const icons = {
   'clear-day': 'wi-day-sunny',
@@ -10,7 +10,7 @@ const icons = {
   'fog': 'wi-fog',
   'cloudy': 'wi-cloudy',
   'partly-cloudy-day': 'wi-day-cloudy',
-  'partly-cloudy-night': 'wi-night-cloudy',
+  'partly-cloudy-night': 'wi-night-cloudy'
 }
 
 main()
@@ -57,7 +57,7 @@ function getUrl () {
 
 async function fetchWeather (url) {
   const response = await fetch(url)
-  return await response.json()
+  return response.json()
 }
 
 function App (state) {
@@ -139,7 +139,7 @@ function Temperature (props) {
 }
 
 function formatHour (time) {
-  return time.toLocaleTimeString('en-US-u-hc-h24', {hour: '2-digit', minute:'2-digit'})
+  return time.toLocaleTimeString('en-US-u-hc-h24', {hour: '2-digit', minute: '2-digit'})
 }
 
 function formatDay (day) {
@@ -154,15 +154,15 @@ function formatDay (day) {
 }
 
 function formatDate (day) {
-  return day.toLocaleDateString('en-US', {month: '2-digit', day:'2-digit'})
+  return day.toLocaleDateString('en-US', {month: '2-digit', day: '2-digit'})
 }
 
 function isNextDay (now, date, offset) {
   const dateWithOffset = new Date(now)
   dateWithOffset.setDate(now.getDate() + offset)
-  return (date.getDate() == dateWithOffset.getDate()
-        && date.getMonth() == dateWithOffset.getMonth()
-        && date.getFullYear() == dateWithOffset.getFullYear())
+  return (date.getDate() === dateWithOffset.getDate() &&
+        date.getMonth() === dateWithOffset.getMonth() &&
+        date.getFullYear() === dateWithOffset.getFullYear())
 }
 
 function Day (day) {
@@ -183,6 +183,6 @@ function Day (day) {
   `
 }
 
-function Icon(props) {
+function Icon (props) {
   return wire(props)`<i class=${['wi', icons[props.icon], props.class].join(' ')}></i>`
 }

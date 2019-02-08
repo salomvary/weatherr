@@ -6,6 +6,7 @@
   "scripts": {
     "build": "buildProduction  --stoponwarning --precacheserviceworker --nocompress --outroot dist --root . index.html",
     "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint . && stylelint '**/*.css'",
     "start": "node proxy.js"
   },
   "keywords": [],
@@ -17,6 +18,13 @@
     "weather-icons": "^1.3.2"
   },
   "devDependencies": {
-    "assetgraph-builder": "^6.5.0"
+    "assetgraph-builder": "^6.5.0",
+    "eslint": "^5.13.0",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-plugin-import": "^2.16.0",
+    "eslint-plugin-node": "^8.0.1",
+    "eslint-plugin-standard": "^4.0.0",
+    "stylelint": "^9.10.1",
+    "stylelint-config-standard": "^18.2.0"
   }
 }

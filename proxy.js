@@ -18,11 +18,11 @@ const proxy = httpProxy.createProxyServer({
 
 proxy.on('proxyRes', function (proxyRes, req, res) {
   res.setHeader('access-control-allow-origin', req.headers.origin)
-});
+})
 
-http.createServer(function(req, res) {
+http.createServer(function (req, res) {
   if (allowedOrigins.has(req.headers.origin)) {
-    proxy.web(req, res, { target: `https://api.darksky.net/forecast/${apiKey}` })
+    proxy.web(req, res, {target: `https://api.darksky.net/forecast/${apiKey}`})
   } else {
     console.warn(`Origin '${req.headers.origin}' was rejected`)
     res.statusCode = 403
