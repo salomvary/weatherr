@@ -1,14 +1,19 @@
 html {
   font-family: -apple-system, SF Pro Text, SF UI Text, system-ui, Helvetica Neue, Helvetica, Arial, sans-serif;
-  height: 100%;
-  width: 100%;
+  font-size: 14px;
 }
 
+html,
 body {
   margin: 0;
-  font-size: 14px;
-  height: 100%;
-  width: 100%;
+  padding: 0;
+
+  /*
+  Kill overscroll in Safari
+  See https://www.bram.us/2016/05/02/prevent-overscroll-bounce-in-ios-mobilesafari-pure-css/
+  */
+  position: fixed;
+  overflow: hidden;
 }
 
 /*
@@ -17,8 +22,14 @@ body {
 
 .app {
   position: relative;
-  width: 100%;
-  height: 100%;
+
+  /*
+  Restore scrolling that we killed on html, body
+  */
+  width: 100vw;
+  height: 100vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 
   --navbar-height: 44px;
 }
