@@ -116,8 +116,8 @@ function App (state, onLocationSelect) {
   return wire(state)`${
     ({
       loading: Loading,
-      weather: (state) => Weather(state.weather, state.location),
-      myLocation: () => LocationSearch(onLocationSelect)
+      weather: (state) => WeatherView(state.weather, state.location),
+      myLocation: () => LocationSearchView(onLocationSelect)
 
     })[state.screen](state)
   }`
@@ -129,31 +129,41 @@ function App (state, onLocationSelect) {
 
 function Loading () {
   return wire()`
-    <div class="loading">
-      ${Icon({icon: 'clear-day', class: 'loading-icon'})}
-      <p>Predicting the unpredictable…</p>
+    <div class="view">
+      <article class="page loading-page">
+        ${Icon({icon: 'clear-day', class: 'loading-icon'})}
+        <p>Predicting the unpredictable…</p>
+      </div>
     </div>
   `
 }
 
 /**
- * Weather component
+ * Weather view
  */
 
-function Weather (weather, location) {
+function WeatherView (weather, location) {
   const [today] = weather.daily.data
   return wire(weather)`
-    ${WeatherHeader({location})}
-    ${Currently(weather.currently, today || {})}
-    ${Hourly(weather.hourly)}
-    ${Daily(weather.daily)}
+    <div class="view">
+      ${WeatherNavbar({location})}
+      <article class="page page-with-navbar">
+        <div class="weather">
+          ${Currently(weather.currently, today || {})}
+          ${Hourly(weather.hourly)}
+          ${Daily(weather.daily)}
+        </div>
+      </article>
+    </div>
   `
 }
 
-function WeatherHeader (props) {
+function WeatherNavbar (props) {
   return wire(props)`
-    <nav class="weather-nav">
-      <a class="weather-nav-location" href="#my-location">${props.location.name}</a>
+    <nav class="navbar">
+      <h1 class="navbar-title">
+        <a class="weather-navbar-location" href="#my-location">${props.location.name}</a>
+      </h1>
     </nav>
   `
 }
@@ -189,7 +199,7 @@ function Hourly (hourly) {
 function Hour (hour) {
   return wire(hour)`
     <div class="forecast-item">
-      <div>${formatHour(new Date(hour.time * 1000))}</div>
+      <div class="forecast-item-time">${formatHour(new Date(hour.time * 1000))}</div>
       <div class="forecast-item-temperature">
         ${Temperature({value: hour.temperature})}
       </div>
@@ -242,8 +252,8 @@ function isNextDay (now, date, offset) {
 function Day (day) {
   return wire(day)`
     <div class="forecast-item">
-      <div>${formatDay(new Date(day.time * 1000))}</div>
-      <div>${formatDate(new Date(day.time * 1000))}</div>
+      <div class="forecast-item-time">${formatDay(new Date(day.time * 1000))}</div>
+      <div class="forecast-item-time">${formatDate(new Date(day.time * 1000))}</div>
       <div class="forecast-item-highlow">
         <div class="forecast-item-temperature">
           ${Temperature({value: day.temperatureHigh})}
@@ -262,10 +272,10 @@ function Icon (props) {
 }
 
 /**
- * Location search component
+ * Location search view
  */
 
-function LocationSearch (onResultSelect) {
+function LocationSearchView (onResultSelect) {
   const baseUrl = 'https://nominatim.openstreetmap.org/search'
   const state = {
     searching: false,
@@ -330,30 +340,29 @@ function LocationSearch (onResultSelect) {
 
   function render () {
     return html`
-      <section class="location-search">
-        <div class="location-search-panel">
-          <nav class="panel-nav">
+      <div class="view location-search-view">
+        <nav class="navbar">
+          <form class="searchbar" action="" onsubmit=${onSubmit}>
+            <input
+              type="search" name="query"
+              class="input" autofocus
+              placeholder="City"
+              autocomplete="off">
             <a href="#">
-              <button class="btn btn-flat">❬ Weather</button>
+              <button class="btn btn-flat" type="button">Cancel</button>
             </a>
-          </nav>
-          <form class="location-search-form" action="" onsubmit=${onSubmit}>
-            <input type="text" name="query" class="input" autofocus autocomplete="off">
-            <button
-              type="submit" class="btn"
-              disabled=${state.searching}
-            >
-              ${state.searching ? 'Searching…' : 'Search'}
-            </button>
           </form>
+        </nav>
+
+        <article class="page page-with-navbar">
           <ul class="location-search-results">
             ${state.error ? wire()`
               <li class="location-search-error">${state.error}</li>
             ` : null}
             ${state.results.map((result) => LocationSearchResult(result, onResultSelect))}
           </ul>
-        </div>
-      </section>
+        </article>
+      </div>
     `
   }
 
