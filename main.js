@@ -1,4 +1,4 @@
-import {wire, bind} from './node_modules/hyperhtml/esm.js'
+import {wire, bind} from './hyperhtml.js'
 
 /**
  * Configuration
