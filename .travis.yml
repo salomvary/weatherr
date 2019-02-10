@@ -12,5 +12,6 @@ deploy:
   skip-cleanup: true
   github-token: $GITHUB_TOKEN
   local-dir: dist
+  fqdn: weather.salomvary.com
   on:
     branch: master

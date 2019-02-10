@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Weather.</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" type="text/css" media="screen" href="weather-icons/css/weather-icons.css" />
+    <link rel="stylesheet" type="text/css" media="screen" href="node_modules/weather-icons/css/weather-icons.css" />
     <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-512.png">
@@ -18,16 +18,5 @@
     <noscript>
       This application requires JavaScript.
     </noscript>
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', function() {
-          navigator.serviceWorker.register('sw.js').then(function(registration) {
-            console.log('ServiceWorker registration successful with scope: ', registration.scope)
-          }, function(err) {
-            console.log('ServiceWorker registration failed: ', err)
-          })
-        })
-      }
-    </script>
   </body>
 </html>
