@@ -7,6 +7,7 @@
     "build": "buildProduction  --stoponwarning --precacheserviceworker --outroot dist --root . index.html",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint . && stylelint '**/*.css'",
+    "server": "http-server -p 3442 .",
     "start": "node proxy.js"
   },
   "keywords": [],
@@ -24,6 +25,7 @@
     "eslint-plugin-import": "^2.16.0",
     "eslint-plugin-node": "^8.0.1",
     "eslint-plugin-standard": "^4.0.0",
+    "http-server": "^0.11.1",
     "stylelint": "^9.10.1",
     "stylelint-config-standard": "^18.2.0"
   }
