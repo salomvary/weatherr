@@ -7,13 +7,7 @@ html,
 body {
   margin: 0;
   padding: 0;
-
-  /*
-  Kill overscroll in Safari
-  See https://www.bram.us/2016/05/02/prevent-overscroll-bounce-in-ios-mobilesafari-pure-css/
-  */
-  position: fixed;
-  overflow: hidden;
+  height: 100%;
 }
 
 /*
@@ -22,14 +16,7 @@ body {
 
 .app {
   position: relative;
-
-  /*
-  Restore scrolling that we killed on html, body
-  */
-  width: 100vw;
-  height: 100vh;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
+  height: 100%;
 
   --navbar-height: 44px;
 }
@@ -41,12 +28,12 @@ body {
 }
 
 .navbar {
-  background: #fff;
   position: absolute;
   z-index: 100;
+  background: #fff;
   left: 0;
   top: 0;
-  width: 100%;
+  right: 0;
   height: var(--navbar-height);
   border-bottom: 0.5px solid black;
   display: flex;
@@ -62,13 +49,10 @@ body {
 }
 
 .page {
+  height: 100%;
   overflow: auto;
   box-sizing: border-box;
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
+  -webkit-overflow-scrolling: touch;
 }
 
 .page-with-navbar {
