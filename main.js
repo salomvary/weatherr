@@ -32,23 +32,21 @@ async function main (html) {
   const state = Object.assign({
     location: {lat: 52.51925, lon: 13.40881, name: 'Berlin'},
     weather: null,
-    screen: null
+    screen: null,
+    fetchError: false
   }, storedState)
 
   let updateIntervalHandle
 
   router(async (route) => {
     stopUpdating()
+    state.fetchError = false
+
     if (route === 'my-location') {
       state.screen = 'myLocation'
       render()
     } else {
-      state.screen = 'loading'
-      render()
-      state.weather = await fetchWeather(getApiUrl(state.location))
-      state.screen = 'weather'
-      render()
-      startUpdating()
+      refreshWeather()
     }
   })
 
@@ -59,7 +57,22 @@ async function main (html) {
   }
 
   function render () {
-    html`${App(state, onLocationSelect)}`
+    html`${App(state, onLocationSelect, refreshWeather)}`
+  }
+
+  async function refreshWeather () {
+    state.screen = 'loading'
+    render()
+    try {
+      state.weather = await fetchWeather(getApiUrl(state.location))
+    } catch (e) {
+      console.error('Error fetching weather', e)
+      state.fetchError = true
+    } finally {
+      state.screen = 'weather'
+      startUpdating()
+    }
+    render()
   }
 
   function startUpdating () {
@@ -107,18 +120,22 @@ function getApiUrl ({lat, lon}) {
 
 async function fetchWeather (url) {
   const response = await fetch(url)
-  return response.json()
+  if (response.ok) {
+    return response.json()
+  } else {
+    throw new Error('Unexpected response status when fetching weather', response.status)
+  }
 }
 
 /**
  * Root component
  */
 
-function App (state, onLocationSelect) {
-  return wire(state)`${
+function App (state, onLocationSelect, onRetryFetchWeather) {
+  return wire(state, ':app')`${
     ({
       loading: Loading,
-      weather: (state) => WeatherView(state.weather, state.location),
+      weather: (state) => WeatherView(state, onRetryFetchWeather),
       myLocation: () => LocationSearchView(onLocationSelect)
 
     })[state.screen](state)
@@ -144,18 +161,23 @@ function Loading () {
  * Weather view
  */
 
-function WeatherView (weather, location) {
-  const [today] = weather.daily.data
-  return wire(weather)`
+function WeatherView (state, onRetry) {
+  return wire(state, ':weather-view')`
     <div class="view">
-      ${WeatherNavbar({location})}
+      ${WeatherNavbar(state)}
       <article class="page page-with-navbar">
-        <div class="weather">
-          ${Currently(weather.currently, today || {})}
-          ${Hourly(weather.hourly)}
-          ${Daily(weather.daily)}
-        </div>
+        ${state.fetchError ? FetchError({onRetry}) : Weather(state.weather)}
       </article>
+    </div>
+  `
+}
+
+function FetchError (props) {
+  return wire(props)`
+    <div class="fetch-error">
+      <p>${Icon({icon: 'wi-thunderstorm', class: 'fetch-error-icon'})}</p>
+      <p>Error fetching weather data.</p>
+      <p><button class="btn" onclick=${props.onRetry}>Retry</button></p>
     </div>
   `
 }
@@ -167,6 +189,17 @@ function WeatherNavbar (props) {
         <a class="weather-navbar-location" href="#my-location">${props.location.name}</a>
       </h1>
     </nav>
+  `
+}
+
+function Weather (weather) {
+  const [today] = weather.daily.data
+  return wire(weather)`
+    <div class="weather">
+      ${Currently(weather.currently, today || {})}
+      ${Hourly(weather.hourly)}
+      ${Daily(weather.daily)}
+    </div>
   `
 }
 
@@ -270,7 +303,7 @@ function Day (day) {
 }
 
 function Icon (props) {
-  return wire(props)`<i class=${['wi', icons[props.icon], props.class].join(' ')}></i>`
+  return wire(props)`<i class=${['wi', icons[props.icon] || props.icon, props.class].join(' ')}></i>`
 }
 
 /**

@@ -115,6 +115,22 @@ body {
 }
 
 /*
+ * Fetch error
+ */
+
+.fetch-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100%;
+}
+
+.fetch-error-icon {
+  font-size: 70px;
+}
+
+/*
  * Weather navigation bar
  */
 
