@@ -6,17 +6,32 @@
     <title>Weather.</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" media="screen" href="node_modules/weather-icons/css/weather-icons.css" />
-    <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
+    <link rel="stylesheet" type="text/css" media="screen" href="main.css" nobundle>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-512.png">
     <link rel="shortcut icon" href="favicon.png">
-    <script src="main.js" type="module"></script>
   </head>
   <body>
+    <!-- The app itself -->
     <main class="app">
     </main>
+
+    <!-- Generic "loading failed" error message -->
+    <div id="loading-error" class="loading-error" style="display:none;">
+      <h1 class="loading-error-sad-face">:(</h1>
+      <div class="loading-error-message"></div>
+    </div>
+    <script src="loading-error.js" nobundle></script>
+    <script src="main.js" type="module" onerror="showLoadingError()"></script>
+
+    <!-- You don't even have JavaScript ? -->
     <noscript>
-      This application requires JavaScript.
+      <div class="loading-error">
+        <h1 class="loading-error-sad-face">:(</h1>
+        <div class="loading-error-message">
+          To use this application, please enable JavaScript.
+        </div>
+      </div>
     </noscript>
   </body>
 </html>

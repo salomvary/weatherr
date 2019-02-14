@@ -23,7 +23,9 @@ const icons = {
  * App entry point
  */
 
-main(bind(document.querySelector('.app')))
+if (window.supportedBrowser) {
+  main(bind(document.querySelector('.app')))
+}
 
 async function main (html) {
   const storedState = loadState()
