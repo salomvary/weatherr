@@ -311,6 +311,12 @@ body {
   outline: none;
 }
 
+.icon {
+  vertical-align: text-bottom;
+  width: 18px;
+  height: 18px;
+}
+
 a,
 a:link,
 a:visited,
