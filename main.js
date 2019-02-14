@@ -188,7 +188,7 @@ function WeatherNavbar (props) {
       <h1 class="navbar-title">
         <a class="weather-navbar-location" href="#my-location">
           ${props.location.name}
-          <img src="search.svg" class="icon" alt="Change location">
+          <img src="${'search.svg'.toString('url')}" class="icon" alt="Change location">
         </a>
       </h1>
     </nav>
