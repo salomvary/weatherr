@@ -436,12 +436,15 @@ function LocationSearchView (favoriteLocations, onResultSelect) {
       <div class="view location-search-view">
         <nav class="navbar">
           <form class="searchbar" action="" onsubmit=${onSubmit}>
-            <input
-              onconnected=${onInputConnected}
-              type="search" name="query"
-              class="input" autofocus
-              placeholder="City"
-              autocomplete="off">
+            <div class="input search-input-wrap">
+              <input
+                onconnected=${onInputConnected}
+                type="search" name="query"
+                autofocus
+                placeholder="City"
+                autocomplete="off">
+              <img src="${'/search.svg'.toString('url')}" class="icon search-icon" alt="Change location">
+            </div>
             <a href="#">
               <button class="btn btn-flat" type="button">Cancel</button>
             </a>

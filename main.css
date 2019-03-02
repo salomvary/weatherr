@@ -241,14 +241,32 @@ main {
   display: flex;
 }
 
-.searchbar [type=search] {
+.search-input-wrap {
+  flex: 1;
+  margin-right: 0;
+  display: flex;
+  border-color: rgba(0, 0, 0, 0.8);
+  position: relative;
+}
+
+.search-input-wrap input {
   flex: 1 1 auto;
+  margin: 0;
   min-width: 0;
   width: 0;
-  margin-right: 0;
-  border-color: rgba(0, 0, 0, 0.8);
+  border: 0;
   appearance: none;
   -webkit-appearance: none;
+  font: inherit;
+  padding-left: 20px;
+}
+
+.search-input-wrap .search-icon {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  margin-top: -8px;
+  pointer-events: none;
 }
 
 /*
