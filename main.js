@@ -145,7 +145,7 @@ async function fetchWeather (url) {
 function App (state, onLocationSelect, onRetryFetchWeather) {
   return wire(state, ':app')`${
     ({
-      loading: Loading,
+      loading: (state) => LoadingView(state.location),
       weather: (state) => WeatherView(state, onRetryFetchWeather),
       myLocation: () => LocationSearchView(onLocationSelect)
 
@@ -157,9 +157,10 @@ function App (state, onLocationSelect, onRetryFetchWeather) {
  * Loading indicator screen component
  */
 
-function Loading () {
-  return wire()`
+function LoadingView (location) {
+  return wire(location, ':loading-location')`
     <div class="view">
+      ${WeatherNavbar(location)}
       <article class="page loading-page">
         ${Icon({icon: 'clear-day', class: 'loading-icon'})}
         <p>Predicting the unpredictable…</p>
@@ -175,7 +176,7 @@ function Loading () {
 function WeatherView (state, onRetry) {
   return wire(state, ':weather-view')`
     <div class="view">
-      ${WeatherNavbar(state)}
+      ${WeatherNavbar(state.location)}
       <article class="page page-with-navbar">
         ${state.fetchError ? FetchError({onRetry}) : Weather(state.weather)}
       </article>
@@ -193,12 +194,12 @@ function FetchError (props) {
   `
 }
 
-function WeatherNavbar (props) {
-  return wire(props)`
+function WeatherNavbar (location) {
+  return wire(location)`
     <nav class="navbar">
       <h1 class="navbar-title">
         <a class="weather-navbar-location" href="#my-location">
-          ${props.location.name}
+          ${location.name}
           <img src="${'/search.svg'.toString('url')}" class="icon" alt="Change location">
         </a>
       </h1>
