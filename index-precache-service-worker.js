@@ -1,2 +1,2 @@
 // buildProduction chokes on an empty or missing service worker
-window.console.log('Empty service worker running')
+self.console.log('Empty service worker running')
