@@ -8,6 +8,9 @@ import {wire, bind} from './node_modules/hyperhtml/esm.js'
 
 const updateInterval = 60 * 60 * 1000
 
+/** Only show the loading animation after this time in milliseconds */
+const loadingTimeout = 1000
+
 const icons = {
   'clear-day': 'wi-day-sunny',
   'clear-night': 'wi-night-clear',
@@ -48,6 +51,7 @@ async function main (html) {
   }, storedState)
 
   let updateIntervalHandle
+  let loadingTimeoutHandle
 
   router(async (route) => {
     stopUpdating()
@@ -59,11 +63,11 @@ async function main (html) {
     } else {
       if (state.weather) {
         state.screen = 'weather'
+        render()
       } else {
         refreshWeather()
       }
       startUpdating()
-      render()
     }
   })
 
@@ -85,16 +89,23 @@ async function main (html) {
   }
 
   async function refreshWeather () {
-    state.screen = 'loading'
-    render()
+    clearTimeout(loadingTimeoutHandle)
+    loadingTimeoutHandle = setTimeout(showLoading, loadingTimeout)
+
     try {
       state.weather = await fetchWeather(getApiUrl(state.location))
     } catch (e) {
       console.error('Error fetching weather', e)
       state.fetchError = true
     } finally {
+      clearTimeout(loadingTimeoutHandle)
       state.screen = 'weather'
     }
+    render()
+  }
+
+  function showLoading () {
+    state.screen = 'loading'
     render()
   }
 
