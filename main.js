@@ -11,6 +11,9 @@ const updateInterval = 60 * 60 * 1000
 /** Only show the loading animation after this time in milliseconds */
 const loadingTimeout = 1000
 
+/** Limit favorite locations */
+const maxFavoriteLocations = 5
+
 const icons = {
   'clear-day': 'wi-day-sunny',
   'clear-night': 'wi-night-clear',
@@ -45,6 +48,7 @@ async function main (html) {
   const storedState = loadState()
   const state = Object.assign({
     location: {lat: 52.51925, lon: 13.40881, name: 'Berlin'},
+    favoriteLocations: [],
     weather: null,
     screen: null,
     fetchError: false
@@ -71,17 +75,29 @@ async function main (html) {
     }
   })
 
-  function onLocationSelect (location) {
-    if (
-      location.lat !== state.location.lat ||
-      location.lon !== state.location.lon ||
-      location.name !== state.location.name
-    ) {
-      state.location = location
-      saveState({location: state.location})
+  function onLocationSelect (newLocation) {
+    if (!equalLocation(newLocation, state.location)) {
+      state.location = newLocation
+      const isFavorite = state.favoriteLocations.some((l) => equalLocation(l, newLocation))
+      if (!isFavorite) {
+        state.favoriteLocations.unshift(newLocation)
+        state.favoriteLocations.splice(maxFavoriteLocations)
+      }
+      saveState({
+        location: state.location,
+        favoriteLocations: state.favoriteLocations
+      })
       refreshWeather()
     }
     window.location.hash = '#'
+  }
+
+  function equalLocation (a, b) {
+    return (
+      a.lat === b.lat ||
+      a.lon === b.lon ||
+      a.name === b.name
+    )
   }
 
   function render () {
@@ -170,7 +186,7 @@ function App (state, onLocationSelect, onRetryFetchWeather) {
     ({
       loading: (state) => LoadingView(state.location),
       weather: (state) => WeatherView(state, onRetryFetchWeather),
-      myLocation: () => LocationSearchView(onLocationSelect)
+      myLocation: () => LocationSearchView(state.favoriteLocations, onLocationSelect)
 
     })[state.screen](state)
   }`
@@ -348,12 +364,12 @@ function Icon (props) {
  * Location search view
  */
 
-function LocationSearchView (onResultSelect) {
+function LocationSearchView (favoriteLocations, onResultSelect) {
   const baseUrl = 'https://nominatim.openstreetmap.org/search'
   const state = {
     searching: false,
     error: null,
-    results: []
+    results: favoriteLocations || []
   }
   const html = wire(state)
 
