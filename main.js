@@ -1,3 +1,5 @@
+/* global FontFaceObserver */
+import './node_modules/fontfaceobserver/fontfaceobserver.standalone.js'
 import {wire, bind} from './node_modules/hyperhtml/esm.js'
 
 /**
@@ -28,6 +30,15 @@ if (window.supportedBrowser) {
 }
 
 async function main (html) {
+  const weatherFont = new FontFaceObserver('weathericons')
+  try {
+    await weatherFont.load()
+  } catch (e) {
+    console.error('Loading weather font timed out', e)
+  } finally {
+    document.body.classList.add('fonts-loaded')
+  }
+
   const storedState = loadState()
   const state = Object.assign({
     location: {lat: 52.51925, lon: 13.40881, name: 'Berlin'},

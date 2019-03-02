@@ -14,6 +14,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "fontfaceobserver": "^2.1.0",
     "http-proxy": "^1.17.0",
     "hyperhtml": "^2.25.4",
     "weather-icons": "^1.3.2"

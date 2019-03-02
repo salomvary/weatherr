@@ -14,6 +14,18 @@ body {
 }
 
 /*
+ * Hide the app before the weather font is loaded
+ */
+
+main {
+  display: none;
+}
+
+.fonts-loaded main {
+  display: block;
+}
+
+/*
  * Loading error screen
  */
 
