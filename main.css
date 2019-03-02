@@ -343,10 +343,6 @@ main {
   height: 18px;
 }
 
-.btn-icon .icon {
-  vertical-align: baseline;
-}
-
 /*
  * Misc
  */
@@ -363,6 +359,10 @@ main {
   vertical-align: text-bottom;
   width: 18px;
   height: 18px;
+}
+
+.btn-icon .icon {
+  vertical-align: baseline;
 }
 
 a,
