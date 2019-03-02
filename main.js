@@ -57,13 +57,26 @@ async function main (html) {
       state.screen = 'myLocation'
       render()
     } else {
-      refreshWeather()
+      if (state.weather) {
+        state.screen = 'weather'
+      } else {
+        refreshWeather()
+      }
+      startUpdating()
+      render()
     }
   })
 
   function onLocationSelect (location) {
-    state.location = location
-    saveState({location: state.location})
+    if (
+      location.lat !== state.location.lat ||
+      location.lon !== state.location.lon ||
+      location.name !== state.location.name
+    ) {
+      state.location = location
+      saveState({location: state.location})
+      refreshWeather()
+    }
     window.location.hash = '#'
   }
 
@@ -81,7 +94,6 @@ async function main (html) {
       state.fetchError = true
     } finally {
       state.screen = 'weather'
-      startUpdating()
     }
     render()
   }
