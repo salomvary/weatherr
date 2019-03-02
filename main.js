@@ -374,7 +374,7 @@ function LocationSearchView (favoriteLocations, onResultSelect) {
   const html = wire(state)
 
   function onClearClick (event) {
-    const input = event.target.form.query
+    const input = event.currentTarget.form.query
     input.focus()
     input.value = ''
     state.error = false
