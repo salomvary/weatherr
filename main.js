@@ -411,12 +411,17 @@ function LocationSearchView (onResultSelect) {
     }
   }
 
+  function onInputConnected () {
+    this.focus()
+  }
+
   function render () {
     return html`
       <div class="view location-search-view">
         <nav class="navbar">
           <form class="searchbar" action="" onsubmit=${onSubmit}>
             <input
+              onconnected=${onInputConnected}
               type="search" name="query"
               class="input" autofocus
               placeholder="City"
