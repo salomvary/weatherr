@@ -57,7 +57,7 @@ async function main (html) {
   let updateIntervalHandle
   let loadingTimeoutHandle
 
-  router(async (route) => {
+  async function navigate (route) {
     stopUpdating()
     state.fetchError = false
 
@@ -73,7 +73,9 @@ async function main (html) {
       }
       startUpdating()
     }
-  })
+  }
+
+  router(navigate)
 
   function onLocationSelect (newLocation) {
     if (!equalLocation(newLocation, state.location)) {
@@ -101,7 +103,7 @@ async function main (html) {
   }
 
   function render () {
-    html`${App(state, onLocationSelect, refreshWeather)}`
+    html`${App(state, onLocationSelect, refreshWeather, navigate)}`
   }
 
   async function refreshWeather () {
@@ -181,12 +183,12 @@ async function fetchWeather (url) {
  * Root component
  */
 
-function App (state, onLocationSelect, onRetryFetchWeather) {
+function App (state, onLocationSelect, onRetryFetchWeather, navigate) {
   return wire(state, ':app')`${
     ({
-      loading: (state) => LoadingView(state.location),
-      weather: (state) => WeatherView(state, onRetryFetchWeather),
-      myLocation: () => LocationSearchView(state.favoriteLocations, onLocationSelect)
+      loading: (state) => LoadingView(state.location, navigate),
+      weather: (state) => WeatherView(state, onRetryFetchWeather, navigate),
+      myLocation: () => LocationSearchView(state.favoriteLocations, onLocationSelect, navigate)
 
     })[state.screen](state)
   }`
@@ -196,10 +198,10 @@ function App (state, onLocationSelect, onRetryFetchWeather) {
  * Loading indicator screen component
  */
 
-function LoadingView (location) {
+function LoadingView (location, navigate) {
   return wire(location, ':loading-location')`
     <div class="view">
-      ${WeatherNavbar(location)}
+      ${WeatherNavbar(location, navigate)}
       <article class="page loading-page">
         ${Icon({icon: 'clear-day', class: 'loading-icon'})}
         <p>Predicting the unpredictable…</p>
@@ -212,10 +214,10 @@ function LoadingView (location) {
  * Weather view
  */
 
-function WeatherView (state, onRetry) {
+function WeatherView (state, onRetry, navigate) {
   return wire(state, ':weather-view')`
     <div class="view">
-      ${WeatherNavbar(state.location)}
+      ${WeatherNavbar(state.location, navigate)}
       <article class="page page-with-navbar">
         ${state.fetchError ? FetchError({onRetry}) : Weather(state.weather)}
       </article>
@@ -233,11 +235,11 @@ function FetchError (props) {
   `
 }
 
-function WeatherNavbar (location) {
+function WeatherNavbar (location, navigate) {
   return wire(location)`
     <nav class="navbar">
       <h1 class="navbar-title">
-        <a class="weather-navbar-location" href="#my-location">
+        <a class="weather-navbar-location" href="#my-location" onclick=${() => navigate('my-location')}>
           ${location.name}
           <img src="${'/search.svg'.toString('url')}" class="icon" alt="Change location">
         </a>
@@ -364,7 +366,7 @@ function Icon (props) {
  * Location search view
  */
 
-function LocationSearchView (favoriteLocations, onResultSelect) {
+function LocationSearchView (favoriteLocations, onResultSelect, navigate) {
   const baseUrl = 'https://nominatim.openstreetmap.org/search'
   const state = {
     searching: false,
@@ -457,7 +459,7 @@ function LocationSearchView (favoriteLocations, onResultSelect) {
                 <img src="${'/clear.svg'.toString('url')}" class="icon clear-icon" alt="Clear">
               </button>
             </div>
-            <a href="#">
+            <a href="#" onclick=${() => navigate('')}>
               <button class="btn btn-flat" type="button">Cancel</button>
             </a>
           </form>
