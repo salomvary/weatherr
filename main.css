@@ -259,6 +259,7 @@ main {
   -webkit-appearance: none;
   font: inherit;
   padding-left: 20px;
+  padding-right: 20px;
 }
 
 .search-input-wrap .search-icon {
@@ -267,6 +268,14 @@ main {
   top: 50%;
   margin-top: -8px;
   pointer-events: none;
+}
+
+.search-input-wrap .search-input-clear {
+  position: absolute;
+  padding: 0;
+  right: 8px;
+  top: 50%;
+  margin: -8px 0 0 0;
 }
 
 /*
@@ -327,6 +336,15 @@ main {
   border-color: transparent;
   padding-left: 0;
   padding-right: 0;
+}
+
+.btn-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.btn-icon .icon {
+  vertical-align: baseline;
 }
 
 /*

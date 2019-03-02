@@ -373,6 +373,15 @@ function LocationSearchView (favoriteLocations, onResultSelect) {
   }
   const html = wire(state)
 
+  function onClearClick (event) {
+    const input = event.target.form.query
+    input.focus()
+    input.value = ''
+    state.error = false
+    state.results = favoriteLocations || []
+    render()
+  }
+
   async function onSubmit (event) {
     event.preventDefault()
     const query = event.target.query.value.trim()
@@ -444,6 +453,9 @@ function LocationSearchView (favoriteLocations, onResultSelect) {
                 placeholder="City"
                 autocomplete="off">
               <img src="${'/search.svg'.toString('url')}" class="icon search-icon" alt="Change location">
+              <button class="search-input-clear btn btn-flat btn-icon" type="button" onclick=${onClearClick}>
+                <img src="${'/clear.svg'.toString('url')}" class="icon clear-icon" alt="Clear">
+              </button>
             </div>
             <a href="#">
               <button class="btn btn-flat" type="button">Cancel</button>
