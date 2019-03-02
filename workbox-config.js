@@ -1,4 +1,5 @@
 module.exports = {
+  'skipWaiting': true,
   'importWorkboxFrom': 'local',
   'globDirectory': 'dist/',
   'globPatterns': [
