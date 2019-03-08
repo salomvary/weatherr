@@ -1,6 +1,20 @@
 html {
   font-family: -apple-system, SF Pro Text, SF UI Text, system-ui, Helvetica Neue, Helvetica, Arial, sans-serif;
   font-size: 14px;
+
+  --device-pixel-ratio: 1;
+}
+
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 2dppx) {
+  html {
+    --device-pixel-ratio: 2;
+  }
+}
+
+@media (-webkit-min-device-pixel-ratio: 3), (min-resolution: 3dppx) {
+  :root {
+    --device-pixel-ratio: 3;
+  }
 }
 
 html,
@@ -72,10 +86,20 @@ main {
   top: 0;
   right: 0;
   height: var(--navbar-height);
-  border-bottom: 0.5px solid black;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.navbar::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  border-bottom: solid 1px black;
+  transform: scaleY(calc(1 / var(--device-pixel-ratio)));
+  transform-origin: center bottom;
 }
 
 .navbar-title {

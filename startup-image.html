@@ -8,16 +8,26 @@
     <link rel="stylesheet" type="text/css" media="screen" href="node_modules/weather-icons/css/weather-icons.css" />
     <link rel="stylesheet" type="text/css" media="screen" href="main.css" nobundle>
   </head>
-  <body class="fonts-loaded">
+  <!-- 20px for the iOS status bar -->
+  <body class="fonts-loaded"  style="padding-top:20px; overflow: hidden;">
+    <script>
+      const params = new URLSearchParams(location.search)
+      const zoom = params.get('zoom') || 1
+      if (zoom) {
+        document.body.style.zoom = zoom;
+        document.body.style.setProperty('--zoom', zoom);
+      }
+    </script>
+    <style>
+      /* Make sure border is 1 physical pixel wide when zoomed in */
+      .navbar::after {
+        border-bottom-width: 2px;
+        transform: scaleY(calc(1 / (var(--zoom) * 4)));
+      }
+    </style>
     <main class="app">
       <div class="view">
         <nav class="navbar">
-          <h1 class="navbar-title">
-            <a class="weather-navbar-location" href="#my-location">
-              Berlin
-              <img src="search.svg" class="icon" alt="Change location">
-            </a>
-          </h1>
         </nav>
         <article class="page loading-page">
           <i class="wi wi-day-sunny loading-icon" style="animation: none;"></i>
