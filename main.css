@@ -25,6 +25,10 @@ body {
 
   /* Minimum room for loading-error */
   min-height: 300px;
+
+  /* Remove overscroll bounce */
+  position: fixed;
+  overflow: hidden;
 }
 
 /*
@@ -68,6 +72,11 @@ main {
 .app {
   position: relative;
   height: 100%;
+
+  /* Restore scrolling */
+  width: 100vw;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 
   --navbar-height: 44px;
 }
