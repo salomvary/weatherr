@@ -459,6 +459,12 @@ function LocationSearchView (favoriteLocations, onResultSelect, navigate) {
                 <img src="${'/clear.svg'.toString('url')}" class="icon clear-icon" alt="Clear">
               </button>
             </div>
+            <button
+              type="submit" class="btn location-search-btn"
+              disabled=${state.searching}
+            >
+              ${state.searching ? 'Searching…' : 'Search'}
+            </button>
             <a href="#" onclick=${() => navigate('')}>
               <button class="btn btn-flat" type="button">Cancel</button>
             </a>

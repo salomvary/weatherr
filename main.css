@@ -363,6 +363,16 @@ main {
   margin: -8px 0 0 0;
 }
 
+.location-search-btn {
+  min-width: 115px;
+}
+
+@media (max-width: 400px) {
+  .location-search-btn {
+    display: none;
+  }
+}
+
 /*
  * Location search
  */
