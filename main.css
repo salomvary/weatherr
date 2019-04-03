@@ -85,6 +85,8 @@ main {
   position: relative;
   height: 100%;
   overflow: hidden;
+  display: flex;
+  justify-content: center;
 }
 
 .navbar {
@@ -123,6 +125,8 @@ main {
   overflow: auto;
   box-sizing: border-box;
   -webkit-overflow-scrolling: touch;
+  max-width: 768px;
+  width: 100%;
 }
 
 .page-with-navbar {
@@ -194,6 +198,12 @@ main {
   min-height: 100%;
 }
 
+@media (min-height: 600px) {
+  .weather {
+    justify-content: space-evenly;
+  }
+}
+
 /*
  * Current conditions section
  */
@@ -204,6 +214,12 @@ main {
   justify-content: space-between;
 }
 
+@media (min-width: 375px) {
+  .currently {
+    justify-content: flex-start;
+  }
+}
+
 .currently > div {
   display: flex;
   flex-direction: column;
@@ -212,7 +228,7 @@ main {
 }
 
 .currently-details {
-  margin-left: 20px;
+  margin-left: 40px;
 }
 
 .currently-temperature {
@@ -228,6 +244,21 @@ main {
 .currently-summary {
   text-align: center;
   font-size: 14px;
+}
+
+@media (min-height: 600px) {
+  .currently-temperature {
+    font-size: 110px;
+  }
+
+  .currently-icon {
+    font-size: 90px;
+  }
+
+  .currently-highlow,
+  .currently-summary {
+    font-size: 16px;
+  }
 }
 
 /*
@@ -265,6 +296,20 @@ main {
   margin: 0.25em 0;
 }
 
+@media (min-height: 600px) {
+  .forecast-item-time {
+    font-size: 14px;
+  }
+
+  .forecast-item-temperature {
+    font-size: 22px;
+  }
+
+  .forecast-item-icon {
+    font-size: 45px;
+  }
+}
+
 /*
  * Searchbar
  */
@@ -272,6 +317,7 @@ main {
 .searchbar {
   width: 100%;
   display: flex;
+  max-width: 768px;
 }
 
 .search-input-wrap {
