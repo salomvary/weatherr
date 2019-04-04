@@ -202,6 +202,7 @@ function loadState () {
     return settings && JSON.parse(settings)
   } catch (e) {
     console.error('Can not read storage', e)
+    return undefined
   }
 }
 
@@ -637,6 +638,9 @@ function LocationSearchView (favoriteLocations, onResultSelect, navigate) {
     }
   }
 
+  /**
+   * @this {HTMLInputElement}
+   */
   function onInputConnected () {
     this.focus()
   }
