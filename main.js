@@ -262,7 +262,7 @@ async function fetchWeather (url) {
  */
 function App (state, onLocationSelect, onRetryFetchWeather, navigate) {
   return wire(state, ':app')`${
-    /** @type {Object.<string, (state: State) => any>} */
+    /** @type {Object.<string, (state: State) => Wired>} */
     ({
       loading: (state) => LoadingView(state.location, navigate),
       weather: (state) => WeatherView(state, onRetryFetchWeather, navigate),
@@ -274,9 +274,7 @@ function App (state, onLocationSelect, onRetryFetchWeather, navigate) {
 
 /**
  * Loading indicator screen component
- */
-
-/**
+ *
  * @param {WeatherLocation} location
  * @param {(location: string) => void} navigate
  *
@@ -529,9 +527,7 @@ function Icon (props) {
 
 /**
  * Location search view
- */
-
-/**
+ *
  * @param {WeatherLocation[]} favoriteLocations
  * @param {(result: WeatherLocation) => void} onResultSelect
  * @param {(location: string) => void} navigate
@@ -646,7 +642,7 @@ function LocationSearchView (favoriteLocations, onResultSelect, navigate) {
   }
 
   /**
-   * @returns {any}
+   * @returns {Wired}
    */
   function render () {
     return html`
