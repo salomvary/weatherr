@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "lib": ["es2018", "dom", "dom.iterable"],
+    "outDir": "./dist/",
+    "strictNullChecks": true,
+    "allowJs": true,
+    "checkJs": true,
+    "noEmit": true,
+    "module": "es6",
+    "target": "es2018",
+    "noImplicitAny": true,
+    "types": ["fontfaceobserver"],
+  },
+  "exclude": ["proxy.js"],
+  "include": ["*.js"]
+}

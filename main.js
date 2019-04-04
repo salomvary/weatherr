@@ -1,11 +1,16 @@
 /* global FontFaceObserver */
+/// <reference path="./main.d.ts" />
+
 import './node_modules/fontfaceobserver/fontfaceobserver.standalone.js'
 import {wire, bind} from './node_modules/hyperhtml/esm.js'
 
 /**
- * Configuration
+ * @typedef {any} Wired
  */
 
+/**
+ * Configuration
+ */
 const updateInterval = 60 * 60 * 1000
 
 /** Only show the loading animation after this time in milliseconds */
@@ -14,6 +19,9 @@ const loadingTimeout = 1000
 /** Limit favorite locations */
 const maxFavoriteLocations = 5
 
+/**
+ * @type {Object.<string, string>}
+ */
 const icons = {
   'clear-day': 'wi-day-sunny',
   'clear-night': 'wi-night-clear',
@@ -31,10 +39,37 @@ const icons = {
  * App entry point
  */
 
-if (window.supportedBrowser) {
-  main(bind(document.querySelector('.app')))
+if (/** @type {any} */ (window).supportedBrowser) {
+  main(bind(/** @type {Element} */ (document.querySelector('.app'))))
 }
 
+/**
+ * @typedef {object} WeatherLocation
+ * @property {number} lat
+ * @property {number} lon
+ * @property {string} name
+ * @property {string} region
+ */
+
+/**
+ * @typedef {object} PersistentState
+ * @property {WeatherLocation} location
+ * @property {WeatherLocation[]} favoriteLocations
+ *
+ * Global application state
+ *
+ * @typedef {object} State
+ * @property {WeatherLocation} location
+ * @property {WeatherLocation[]} favoriteLocations
+ * @property {darksky.Weather | null} weather
+ * @property {'myLocation' | 'weather' | 'loading'} screen
+ * @property {boolean} fetchError
+ */
+
+/**
+ * @param { import('./node_modules/hyperhtml/esm').BoundTemplateFunction<Element> } html
+ * @returns {Promise<void>}
+ */
 async function main (html) {
   const weatherFont = new FontFaceObserver('weathericons')
   try {
@@ -46,17 +81,28 @@ async function main (html) {
   }
 
   const storedState = loadState()
-  const state = Object.assign({
-    location: {lat: 52.51925, lon: 13.40881, name: 'Berlin'},
+
+  /** @type {State} */
+  const defaultState = {
+    location: {lat: 52.51925, lon: 13.40881, name: 'Berlin', region: ''},
     favoriteLocations: [],
     weather: null,
-    screen: null,
+    screen: 'loading',
     fetchError: false
-  }, storedState)
+  }
 
+  /** @type {State} */
+  const state = Object.assign(defaultState, storedState)
+
+  /** @type {number} */
   let updateIntervalHandle
+
+  /** @type {number} */
   let loadingTimeoutHandle
 
+  /**
+   * @param {string} route
+   */
   async function navigate (route) {
     stopUpdating()
     state.fetchError = false
@@ -77,6 +123,9 @@ async function main (html) {
 
   router(navigate)
 
+  /**
+   * @param {WeatherLocation} newLocation
+   */
   function onLocationSelect (newLocation) {
     if (!equalLocation(newLocation, state.location)) {
       state.location = newLocation
@@ -94,6 +143,10 @@ async function main (html) {
     window.location.hash = '#'
   }
 
+  /**
+   * @param {WeatherLocation} a
+   * @param {WeatherLocation} b
+   */
   function equalLocation (a, b) {
     return (
       a.lat === b.lat ||
@@ -140,14 +193,22 @@ async function main (html) {
   }
 }
 
+/**
+ * @returns {PersistentState=}
+ */
 function loadState () {
   try {
-    return JSON.parse(localStorage.getItem('weather-settings'))
+    const settings = localStorage.getItem('weather-settings')
+    return settings && JSON.parse(settings)
   } catch (e) {
     console.error('Can not read storage', e)
   }
 }
 
+/**
+ * @param {PersistentState} state
+ * @returns {void}
+ */
 function saveState (state) {
   try {
     localStorage.setItem('weather-settings', JSON.stringify(state))
@@ -156,12 +217,19 @@ function saveState (state) {
   }
 }
 
+/**
+ * @param {(hash: string) => void} onChange
+ * @returns {void}
+ */
 function router (onChange) {
   const hash = () => window.location.hash.substring(1)
   window.addEventListener('hashchange', () => onChange(hash()))
   onChange(hash())
 }
 
+/**
+ * @param {WeatherLocation} location
+ */
 function getApiUrl ({lat, lon}) {
   const local = window.location.protocol === 'file:' ||
     window.location.hostname === 'localhost' ||
@@ -170,21 +238,30 @@ function getApiUrl ({lat, lon}) {
   return local ? 'weather.json' : `https://darksky-proxy.herokuapp.com/${lat},${lon}?units=si`
 }
 
+/**
+ * @param {string} url
+ */
 async function fetchWeather (url) {
   const response = await fetch(url)
   if (response.ok) {
     return response.json()
   } else {
-    throw new Error('Unexpected response status when fetching weather', response.status)
+    throw new Error(`Unexpected response status when fetching weather: ${response.status}`)
   }
 }
 
 /**
  * Root component
+ * @param {State} state
+ * @param {(location: WeatherLocation) => void} onLocationSelect
+ * @param {() => void} onRetryFetchWeather
+ * @param {(location: string) => void} navigate
+ *
+ * @returns {Wired}
  */
-
 function App (state, onLocationSelect, onRetryFetchWeather, navigate) {
   return wire(state, ':app')`${
+    /** @type {Object.<string, (state: State) => any>} */
     ({
       loading: (state) => LoadingView(state.location, navigate),
       weather: (state) => WeatherView(state, onRetryFetchWeather, navigate),
@@ -198,6 +275,12 @@ function App (state, onLocationSelect, onRetryFetchWeather, navigate) {
  * Loading indicator screen component
  */
 
+/**
+ * @param {WeatherLocation} location
+ * @param {(location: string) => void} navigate
+ *
+ * @returns {Wired}
+ */
 function LoadingView (location, navigate) {
   return wire(location, ':loading-location')`
     <div class="view">
@@ -212,19 +295,30 @@ function LoadingView (location, navigate) {
 
 /**
  * Weather view
+ *
+ * @param {State} state
+ * @param {() => void} onRetry
+ * @param {(location: string) => void} navigate
+ *
+ * @returns {Wired}
  */
-
 function WeatherView (state, onRetry, navigate) {
   return wire(state, ':weather-view')`
     <div class="view">
       ${WeatherNavbar(state.location, navigate)}
       <article class="page page-with-navbar">
-        ${state.fetchError ? FetchError({onRetry}) : Weather(state.weather)}
+        ${state.fetchError ? FetchError({onRetry}) : Weather(/** @type {darksky.Weather} */ (state.weather))}
       </article>
     </div>
   `
 }
 
+/**
+ * @param {object} props
+ * @param {() => void} props.onRetry
+ *
+ * @returns {Wired}
+ */
 function FetchError (props) {
   return wire(props)`
     <div class="fetch-error">
@@ -235,6 +329,12 @@ function FetchError (props) {
   `
 }
 
+/**
+ * @param {WeatherLocation} location
+ * @param {(location: string) => void} navigate
+ *
+ * @returns {Wired}
+ */
 function WeatherNavbar (location, navigate) {
   return wire(location)`
     <nav class="navbar">
@@ -248,6 +348,11 @@ function WeatherNavbar (location, navigate) {
   `
 }
 
+/**
+ * @param {darksky.Weather} weather
+ *
+ * @returns {Wired}
+ */
 function Weather (weather) {
   const [today] = weather.daily.data
   return wire(weather)`
@@ -259,6 +364,12 @@ function Weather (weather) {
   `
 }
 
+/**
+ * @param {darksky.HourlyData} currently
+ * @param {darksky.DailyData} today
+ *
+ * @returns {Wired}
+ */
 function Currently (currently, today) {
   return wire(currently)`
     <section class="currently">
@@ -279,6 +390,11 @@ function Currently (currently, today) {
   `
 }
 
+/**
+ * @param {darksky.Forecast<darksky.HourlyData>} hourly
+ *
+ * @returns {Wired}
+ */
 function Hourly (hourly) {
   return wire(hourly)`
     <section class="forecast">
@@ -287,6 +403,11 @@ function Hourly (hourly) {
   `
 }
 
+/**
+ * @param {darksky.HourlyData} hour
+ *
+ * @returns {Wired}
+ */
 function Hour (hour) {
   return wire(hour)`
     <div class="forecast-item">
@@ -299,6 +420,11 @@ function Hour (hour) {
   `
 }
 
+/**
+ * @param {darksky.Forecast<darksky.DailyData>} daily
+ *
+ * @returns {Wired}
+ */
 function Daily (daily) {
   return wire(daily)`
     <section class="forecast">
@@ -307,16 +433,32 @@ function Daily (daily) {
   `
 }
 
+/**
+ * @param {object} props
+ * @param {number} props.value
+ *
+ * @returns {Wired}
+ */
 function Temperature (props) {
   return wire(props)`
     <span class="temperature">${Math.round(props.value)}</span>
   `
 }
 
+/**
+ * @param {Date} time
+ *
+ * @returns {string}
+ */
 function formatHour (time) {
   return time.toLocaleTimeString('en-US-u-hc-h24', {hour: '2-digit', minute: '2-digit'})
 }
 
+/**
+ * @param {Date} day
+ *
+ * @returns {string}
+ */
 function formatDay (day) {
   const now = new Date()
   if (isNextDay(now, day, 0)) {
@@ -328,10 +470,22 @@ function formatDay (day) {
   }
 }
 
+/**
+ * @param {Date} day
+ *
+ * @returns {string}
+ */
 function formatDate (day) {
   return day.toLocaleDateString('en-US', {month: '2-digit', day: '2-digit'})
 }
 
+/**
+ * @param {Date} now
+ * @param {Date} date
+ * @param {number} offset
+ *
+ * @returns {boolean}
+ */
 function isNextDay (now, date, offset) {
   const dateWithOffset = new Date(now)
   dateWithOffset.setDate(now.getDate() + offset)
@@ -340,6 +494,11 @@ function isNextDay (now, date, offset) {
         date.getFullYear() === dateWithOffset.getFullYear())
 }
 
+/**
+ * @param {darksky.DailyData} day
+ *
+ * @returns {Wired}
+ */
 function Day (day) {
   return wire(day)`
     <div class="forecast-item">
@@ -358,6 +517,11 @@ function Day (day) {
   `
 }
 
+/**
+ * @param {object} props
+ * @param {string} props.icon
+ * @param {string=} props.class
+ */
 function Icon (props) {
   return wire(props)`<i class=${['wi', icons[props.icon] || props.icon, props.class].join(' ')}></i>`
 }
@@ -366,27 +530,44 @@ function Icon (props) {
  * Location search view
  */
 
+/**
+ * @param {WeatherLocation[]} favoriteLocations
+ * @param {(result: WeatherLocation) => void} onResultSelect
+ * @param {(location: string) => void} navigate
+ *
+ * @returns {any}
+ */
 function LocationSearchView (favoriteLocations, onResultSelect, navigate) {
   const baseUrl = 'https://nominatim.openstreetmap.org/search'
   const state = {
     searching: false,
+    /** @type {string | null} */
     error: null,
     results: favoriteLocations || []
   }
   const html = wire(state)
 
+  /**
+   * @param {PointerEvent} event
+   */
   function onClearClick (event) {
-    const input = event.currentTarget.form.query
+    const input = /** @type {any} */ (event.currentTarget).form.query
     input.focus()
     input.value = ''
-    state.error = false
+    state.error = null
     state.results = favoriteLocations || []
     render()
   }
 
+  /**
+   * @param {Event} event
+   *
+   * @returns {Promise<void>}
+   */
   async function onSubmit (event) {
     event.preventDefault()
-    const query = event.target.query.value.trim()
+    /** @type {string} */
+    const query = /** @type {HTMLFormElement} */ (event.target).query.value.trim()
     if (query.length === 0) return
     state.error = null
     state.results = []
@@ -406,21 +587,39 @@ function LocationSearchView (favoriteLocations, onResultSelect, navigate) {
     render()
   }
 
+  /**
+   * @typedef NominatimSearchResult
+   * @property {number} lat
+   * @property {number} lon
+   * @property {string} display_name
+   */
+
+  /**
+   * @param {string} query
+   *
+   * @returns {Promise<WeatherLocation[]>}
+   */
   async function fetchResults (query) {
     const url = new URL(baseUrl)
     const params = url.searchParams
     params.set('format', 'json')
-    params.set('limit', 5)
+    params.set('limit', '5')
     params.set('q', query)
-    const response = await fetch(url)
+    const response = await fetch(url.toString())
     if (response.ok) {
+      /** @type {NominatimSearchResult[]} */
       const results = await response.json()
       return results.map(parseAddressResult)
     } else {
-      throw new Error('Error searching location, status:', response.status)
+      throw new Error(`Error searching location, status: ${response.status}`)
     }
   }
 
+  /**
+   * @param {NominatimSearchResult} searchResult
+   *
+   * @returns {WeatherLocation}
+   */
   // eslint-disable-next-line camelcase
   function parseAddressResult ({lat, lon, display_name}) {
     // Would be nice to not construct the address by string parsing but
@@ -442,6 +641,9 @@ function LocationSearchView (favoriteLocations, onResultSelect, navigate) {
     this.focus()
   }
 
+  /**
+   * @returns {any}
+   */
   function render () {
     return html`
       <div class="view location-search-view">
@@ -486,6 +688,12 @@ function LocationSearchView (favoriteLocations, onResultSelect, navigate) {
   return render()
 }
 
+/**
+ * @param {WeatherLocation} result
+ * @param {(result: WeatherLocation) => void} onResultSelect
+ *
+ * @returns {Wired}
+ */
 function LocationSearchResult (result, onResultSelect) {
   return wire(result)`
     <li

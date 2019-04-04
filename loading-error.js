@@ -8,7 +8,7 @@
     showUnsupportedBrowserError()
   }
   // Expose for later use
-  window.supportedBrowser = supportedBrowser
+  ;/** @type {any} */(window).supportedBrowser = supportedBrowser
 
   // Use window.onerror to catch errors while executing scripts
   // during initialization
@@ -17,13 +17,18 @@
   }
 
   // Expose showLoadingError to be used in script tags
-  window.showLoadingError = showLoadingError
+  ;/** @type {any} */ (window).showLoadingError = showLoadingError
 
+  /**
+   * @param {string} message
+   */
   function showFatalError (message) {
     var container = document.getElementById('loading-error')
-    var messageElement = container.getElementsByTagName('div')[0]
-    messageElement.innerHTML = message
-    container.style.display = 'block'
+    if (container) {
+      var messageElement = container.getElementsByTagName('div')[0]
+      messageElement.innerHTML = message
+      container.style.display = 'block'
+    }
   }
 
   function showUnsupportedBrowserError () {
@@ -44,7 +49,7 @@
     )
   }
 
-  window.resetStorage = function resetStorage () {
+  ;/** @type {any} */ (window).resetStorage = function resetStorage () {
     localStorage.clear()
     location.reload()
   }
