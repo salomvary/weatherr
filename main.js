@@ -217,7 +217,7 @@ async function main (html) {
      * @param {darksky.HourlyData | darksky.DailyData} dataPoint
      */
     const notOlderThanOneHour = function ({time}) {
-      return now.getTime() - new Date(time * 1000).getTime() < oneHour
+      return now.getTime() - time.getTime() < oneHour
     }
     const hourly = weather.hourly.data.filter(notOlderThanOneHour)
     const daily = weather.daily.data.filter(notOlderThanOneHour)
@@ -321,7 +321,14 @@ function getApiUrl ({lat, lon}) {
 async function fetchWeather (url) {
   const response = await fetch(url)
   if (response.ok) {
-    return response.json()
+    const body = await response.text()
+    return JSON.parse(body, function reviver (k, v) {
+      if (k === 'time' && typeof v === 'number') {
+        return new Date(v * 1000)
+      } else {
+        return v
+      }
+    })
   } else {
     throw new Error(`Unexpected response status when fetching weather: ${response.status}`)
   }
@@ -486,7 +493,7 @@ function Hourly (hourly) {
 function Hour (hour) {
   return wire(hour)`
     <div class="forecast-item">
-      <div class="forecast-item-time">${formatHour(new Date(hour.time * 1000))}</div>
+      <div class="forecast-item-time">${formatHour(hour.time)}</div>
       <div class="forecast-item-temperature">
         ${Temperature({value: hour.temperature})}
       </div>
@@ -577,8 +584,8 @@ function isNextDay (now, date, offset) {
 function Day (day) {
   return wire(day)`
     <div class="forecast-item">
-      <div class="forecast-item-time">${formatDay(new Date(day.time * 1000))}</div>
-      <div class="forecast-item-time">${formatDate(new Date(day.time * 1000))}</div>
+      <div class="forecast-item-time">${formatDay(day.time)}</div>
+      <div class="forecast-item-time">${formatDate(day.time)}</div>
       <div class="forecast-item-highlow">
         <div class="forecast-item-temperature">
           ${Temperature({value: day.temperatureHigh})}
