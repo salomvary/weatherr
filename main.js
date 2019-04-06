@@ -11,7 +11,9 @@ import {wire, bind} from './node_modules/hyperhtml/esm.js'
 /**
  * Configuration
  */
-const updateInterval = 60 * 60 * 1000
+
+/** The positive integer update frequency in hours */
+const updateIntervalHours = 1
 
 /** Only show the loading animation after this time in milliseconds */
 const loadingTimeout = 1000
@@ -94,8 +96,8 @@ async function main (html) {
   /** @type {State} */
   const state = Object.assign(defaultState, storedState)
 
-  /** @type {number} */
-  let updateIntervalHandle
+  /** @type {(() => void) | null} */
+  let clearUpdateSchedule
 
   /** @type {number} */
   let loadingTimeoutHandle
@@ -182,14 +184,26 @@ async function main (html) {
 
   function startUpdating () {
     stopUpdating()
-    updateIntervalHandle = setInterval(async () => {
-      state.weather = truncateWeather(await fetchWeather(getApiUrl(state.location)))
-      render()
-    }, updateInterval)
+
+    function scheduleNextUpdate () {
+      const nextUpdate = new Date()
+      nextUpdate.setHours(nextUpdate.getHours() + updateIntervalHours, 0, 0, 0)
+      console.info(`Scheduled next update at ${nextUpdate}`)
+      clearUpdateSchedule = scheduleAt(nextUpdate, async () => {
+        state.weather = truncateWeather(await fetchWeather(getApiUrl(state.location)))
+        render()
+        scheduleNextUpdate()
+      })
+    }
+
+    scheduleNextUpdate()
   }
 
   function stopUpdating () {
-    clearInterval(updateIntervalHandle)
+    if (clearUpdateSchedule) {
+      clearUpdateSchedule()
+      clearUpdateSchedule = null
+    }
   }
 
   /**
@@ -221,6 +235,37 @@ async function main (html) {
       hourly: {data: hourly},
       daily: {data: daily}
     }
+  }
+}
+
+/**
+ * Run callback at time or a bit later but never earlier
+ *
+ * @param {Date} time
+ * @param {() => void} callback
+ * @returns {() => void} function to clear the schedule
+ */
+function scheduleAt (time, callback) {
+  /** @type {number} */
+  let handle
+
+  /**
+   * @param {Date} time
+   * @param {() => void} callback
+   */
+  function _scheduleAt (time, callback) {
+    const remainingTime = +time - +new Date()
+    if (remainingTime > 0) {
+      handle = setTimeout(() => _scheduleAt(time, callback), remainingTime)
+    } else {
+      callback()
+    }
+  }
+
+  _scheduleAt(time, callback)
+
+  return function clearSchedule () {
+    clearTimeout(handle)
   }
 }
 
