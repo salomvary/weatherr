@@ -4,6 +4,7 @@ interface String {
 
 declare module darksky {
   interface HourlyData {
+    /** The UTC UNIX time in seconds at which this data point begins. */
     time: number
     icon: string
     temperature: number
@@ -11,6 +12,7 @@ declare module darksky {
   }
 
   interface DailyData {
+    /** The UTC UNIX time in seconds at which this data point begins. */
     time: number
     icon: string
     temperatureHigh: number

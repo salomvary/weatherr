@@ -164,7 +164,7 @@ async function main (html) {
     loadingTimeoutHandle = setTimeout(showLoading, loadingTimeout)
 
     try {
-      state.weather = await fetchWeather(getApiUrl(state.location))
+      state.weather = truncateWeather(await fetchWeather(getApiUrl(state.location)))
     } catch (e) {
       console.error('Error fetching weather', e)
       state.fetchError = true
@@ -183,13 +183,44 @@ async function main (html) {
   function startUpdating () {
     stopUpdating()
     updateIntervalHandle = setInterval(async () => {
-      state.weather = await fetchWeather(getApiUrl(state.location))
+      state.weather = truncateWeather(await fetchWeather(getApiUrl(state.location)))
       render()
     }, updateInterval)
   }
 
   function stopUpdating () {
     clearInterval(updateIntervalHandle)
+  }
+
+  /**
+   * @param {darksky.Weather} weather
+   * @returns {darksky.Weather}
+   */
+  function truncateWeather (weather) {
+    const now = new Date()
+    const oneHour = 60 * 60 * 1000
+    /**
+     * @param {darksky.HourlyData | darksky.DailyData} dataPoint
+     */
+    const notOlderThanOneHour = function ({time}) {
+      return now.getTime() - new Date(time * 1000).getTime() < oneHour
+    }
+    const hourly = weather.hourly.data.filter(notOlderThanOneHour)
+    const daily = weather.daily.data.filter(notOlderThanOneHour)
+    const [hourlyNow] = hourly
+    let currently
+    if (!notOlderThanOneHour(weather.currently) && hourlyNow) {
+      // Make up a new "currently" from the most recent "hourly"
+      currently = hourlyNow
+    } else {
+      currently = weather.currently
+    }
+
+    return {
+      currently,
+      hourly: {data: hourly},
+      daily: {data: daily}
+    }
   }
 }
 
