@@ -1,4 +1,4 @@
-import {wire} from './node_modules/hyperhtml/esm.js'
+import {wire} from '/node_modules/hyperhtml/esm.js'
 
 /**
  * @param {import('./state').WeatherLocation} location
@@ -12,7 +12,7 @@ export default function WeatherNavbar (location, navigate) {
       <h1 class="navbar-title">
         <a class="weather-navbar-location" href="#my-location" onclick=${() => navigate('my-location')}>
           ${location.name}
-          <img src="${'/search.svg'.toString('url')}" class="icon" alt="Change location">
+          <img src="${'/app/search.svg'.toString('url')}" class="icon" alt="Change location">
         </a>
       </h1>
     </nav>

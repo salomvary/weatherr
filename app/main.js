@@ -1,8 +1,8 @@
 /* global FontFaceObserver */
 /// <reference path="./main.d.ts" />
 
-import './node_modules/fontfaceobserver/fontfaceobserver.standalone.js'
-import {bind} from './node_modules/hyperhtml/esm.js'
+import '/node_modules/fontfaceobserver/fontfaceobserver.standalone.js'
+import {bind} from '/node_modules/hyperhtml/esm.js'
 import {getInitialState, saveState} from './state.js'
 import App from './app.js'
 

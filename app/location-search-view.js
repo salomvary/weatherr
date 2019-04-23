@@ -1,4 +1,4 @@
-import {wire} from './node_modules/hyperhtml/esm.js'
+import {wire} from '/node_modules/hyperhtml/esm.js'
 
 /**
  * Location search view
@@ -124,9 +124,9 @@ export default function LocationSearchView (favoriteLocations, onResultSelect, n
                 autofocus
                 placeholder="City"
                 autocomplete="off">
-              <img src="${'/search.svg'.toString('url')}" class="icon search-icon" alt="Change location">
+              <img src="${'/app/search.svg'.toString('url')}" class="icon search-icon" alt="Change location">
               <button class="search-input-clear btn btn-flat btn-icon" type="button" onclick=${onClearClick}>
-                <img src="${'/clear.svg'.toString('url')}" class="icon clear-icon" alt="Clear">
+                <img src="${'/app/clear.svg'.toString('url')}" class="icon clear-icon" alt="Clear">
               </button>
             </div>
             <button

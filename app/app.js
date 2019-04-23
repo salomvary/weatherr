@@ -1,4 +1,4 @@
-import {wire} from './node_modules/hyperhtml/esm.js'
+import {wire} from '/node_modules/hyperhtml/esm.js'
 import WeatherView from './weather.js'
 import LocationSearchView from './location-search-view.js'
 import WeatherNavbar from './weather-navbar.js'

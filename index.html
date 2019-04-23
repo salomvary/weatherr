@@ -9,10 +9,10 @@
     <link rel="preload" href="node_modules/weather-icons/font/weathericons-regular-webfont.woff" as="font">
     <link rel="preload" href="node_modules/weather-icons/css/weather-icons.css" as="style">
     <link rel="stylesheet" type="text/css" media="screen" href="node_modules/weather-icons/css/weather-icons.css" />
-    <link rel="stylesheet" type="text/css" media="screen" href="main.css" nobundle>
-    <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icon-512.png">
-    <link rel="shortcut icon" href="favicon.png">
+    <link rel="stylesheet" type="text/css" media="screen" href="app/main.css" nobundle>
+    <link rel="manifest" href="/app/manifest.json">
+    <link rel="apple-touch-icon" href="app/icon-512.png">
+    <link rel="shortcut icon" href="app/favicon.png">
     <meta name="theme-color" content="#ffffff">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="#ffffff">
@@ -72,8 +72,8 @@
       <h1 class="loading-error-sad-face">:(</h1>
       <div class="loading-error-message"></div>
     </div>
-    <script src="loading-error.js" nobundle></script>
-    <script src="main.js" type="module" onerror="showLoadingError()"></script>
+    <script src="app/loading-error.js" nobundle></script>
+    <script src="app/main.js" type="module" onerror="showLoadingError()"></script>
 
     <!-- You don't even have JavaScript ? -->
     <noscript>

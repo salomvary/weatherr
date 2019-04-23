@@ -1,4 +1,4 @@
-import {wire} from './node_modules/hyperhtml/esm.js'
+import {wire} from '/node_modules/hyperhtml/esm.js'
 import WeatherNavbar from './weather-navbar.js'
 import Icon from './icon.js'
 
