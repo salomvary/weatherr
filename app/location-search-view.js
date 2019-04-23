@@ -1,10 +1,14 @@
 import {wire} from '/node_modules/hyperhtml/esm.js'
 
 /**
+ * @typedef { import('./state.js').WeatherLocation } WeatherLocation
+ */
+
+/**
  * Location search view
  *
- * @param {import('./state.js').WeatherLocation[]} favoriteLocations
- * @param {(result: import('./state.js').WeatherLocation) => void} onResultSelect
+ * @param {WeatherLocation[]} favoriteLocations
+ * @param {(result: WeatherLocation) => void} onResultSelect
  * @param {(location: string) => void} navigate
  *
  * @returns {any}
@@ -65,7 +69,7 @@ export default function LocationSearchView (favoriteLocations, onResultSelect, n
   /**
    * @param {string} query
    *
-   * @returns {Promise<import('./state.js').WeatherLocation[]>}
+   * @returns {Promise<WeatherLocation[]>}
    */
   async function fetchResults (query) {
     const url = new URL(baseUrl)
@@ -85,7 +89,7 @@ export default function LocationSearchView (favoriteLocations, onResultSelect, n
   /**
    * @param {NominatimSearchResult} searchResult
    *
-   * @returns {import('./state.js').WeatherLocation}
+   * @returns {WeatherLocation}
    */
   // eslint-disable-next-line camelcase
   function parseAddressResult ({lat, lon, display_name}) {
@@ -156,8 +160,8 @@ export default function LocationSearchView (favoriteLocations, onResultSelect, n
 }
 
 /**
- * @param {import('./state.js').WeatherLocation} result
- * @param {(result: import('./state.js').WeatherLocation) => void} onResultSelect
+ * @param {WeatherLocation} result
+ * @param {(result: WeatherLocation) => void} onResultSelect
  *
  * @returns {any}
  */

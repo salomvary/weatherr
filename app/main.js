@@ -7,6 +7,10 @@ import {getInitialState, saveState} from './state.js'
 import App from './app.js'
 
 /**
+ * @typedef { import('./state.js').WeatherLocation } WeatherLocation
+ */
+
+/**
  * Configuration
  */
 
@@ -73,7 +77,7 @@ async function main (html) {
   router(navigate)
 
   /**
-   * @param {import('./state.js').WeatherLocation} newLocation
+   * @param {WeatherLocation} newLocation
    */
   function onLocationSelect (newLocation) {
     if (!equalLocation(newLocation, state.location)) {
@@ -93,8 +97,8 @@ async function main (html) {
   }
 
   /**
-   * @param {import('./state.js').WeatherLocation} a
-   * @param {import('./state.js').WeatherLocation} b
+   * @param {WeatherLocation} a
+   * @param {WeatherLocation} b
    */
   function equalLocation (a, b) {
     return (
@@ -227,7 +231,7 @@ function router (onChange) {
 }
 
 /**
- * @param {import('./state.js').WeatherLocation} location
+ * @param {WeatherLocation} location
  */
 function getApiUrl ({lat, lon}) {
   const local = window.location.protocol === 'file:' ||

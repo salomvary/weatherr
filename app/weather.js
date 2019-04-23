@@ -3,9 +3,13 @@ import WeatherNavbar from './weather-navbar.js'
 import Icon from './icon.js'
 
 /**
+ * @typedef { import('./state.js').State } State
+ */
+
+/**
  * Weather view
  *
- * @param {import('./state').State} state
+ * @param {State} state
  * @param {() => void} onRetry
  * @param {(location: string) => void} navigate
  *

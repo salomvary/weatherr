@@ -1,4 +1,6 @@
 /**
+ * Geographical location of a weather forecast
+ *
  * @typedef {object} WeatherLocation
  * @property {number} lat
  * @property {number} lon
@@ -7,10 +9,14 @@
  */
 
 /**
+ * State persisted across sessions
+ *
  * @typedef {object} PersistentState
  * @property {WeatherLocation} location
  * @property {WeatherLocation[]} favoriteLocations
- *
+ */
+
+/**
  * Global application state
  *
  * @typedef {object} State

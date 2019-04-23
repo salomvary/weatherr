@@ -5,10 +5,15 @@ import WeatherNavbar from './weather-navbar.js'
 import Icon from './icon.js'
 
 /**
+ * @typedef { import('./state.js').State } State
+ * @typedef { import('./state.js').WeatherLocation } WeatherLocation
+ */
+
+/**
  * Root component
  *
- * @param {import('./state.js').State} state
- * @param {(location: import('./state.js').WeatherLocation) => void} onLocationSelect
+ * @param {State} state
+ * @param {(location: WeatherLocation) => void} onLocationSelect
  * @param {() => void} onRetryFetchWeather
  * @param {(location: string) => void} navigate
  *
@@ -16,7 +21,7 @@ import Icon from './icon.js'
  */
 export default function App (state, onLocationSelect, onRetryFetchWeather, navigate) {
   return wire(state, ':app')`${
-    /** @type {Object.<string, (state: import('./state.js').State) => any>} */
+    /** @type {Object.<string, (state: State) => any>} */
     ({
       loading: (state) => LoadingView(state.location, navigate),
       weather: (state) => WeatherView(state, onRetryFetchWeather, navigate),
@@ -27,7 +32,7 @@ export default function App (state, onLocationSelect, onRetryFetchWeather, navig
 /**
  * Loading indicator screen component
  *
- * @param {import('./state.js').WeatherLocation} location
+ * @param {WeatherLocation} location
  * @param {(location: string) => void} navigate
  *
  * @returns {any}
