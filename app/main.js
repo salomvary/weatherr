@@ -28,7 +28,7 @@ if (/** @type {any} */ (window).supportedBrowser) {
 }
 
 /**
- * @param { import('./node_modules/hyperhtml/esm').BoundTemplateFunction<Element> } html
+ * @param { import('/node_modules/hyperhtml/esm.js').BoundTemplateFunction<Element> } html
  * @returns {Promise<void>}
  */
 async function main (html) {

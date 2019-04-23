@@ -10,7 +10,12 @@
     "noImplicitReturns": true,
     "strict": true,
     "types": ["fontfaceobserver"],
+    "baseUrl": ".",
+    "paths": {
+      "/node_modules/*.js": [
+        "node_modules/*"
+      ]
+    }
   },
-  "exclude": ["proxy.js"],
-  "include": ["*.js"]
+  "include": ["app/*.js"]
 }
