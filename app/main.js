@@ -170,8 +170,14 @@ async function main (html) {
     const notOlderThanOneHour = function ({time}) {
       return now.getTime() - time.getTime() < oneHour
     }
+    /**
+     * @param {darksky.HourlyData | darksky.DailyData} dataPoint
+     */
+    const notOlderThanOneDay = function ({time}) {
+      return now.getTime() - time.getTime() < 24 * oneHour
+    }
     const hourly = weather.hourly.data.filter(notOlderThanOneHour)
-    const daily = weather.daily.data.filter(notOlderThanOneHour)
+    const daily = weather.daily.data.filter(notOlderThanOneDay)
     const [hourlyNow] = hourly
     let currently
     if (!notOlderThanOneHour(weather.currently) && hourlyNow) {
