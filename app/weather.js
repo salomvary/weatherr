@@ -60,7 +60,7 @@ export function Weather (weather, selectedDay, onDaySelect) {
   return wire(weather)`
     <div class="weather">
       ${Currently(weather.currently, today || {})}
-      ${Hourly(weather.hourly)}
+      ${Hourly(weather.hourly, selectedDay)}
       ${Daily(weather.daily, selectedDay, onDaySelect)}
     </div>
   `
@@ -94,15 +94,38 @@ function Currently (currently, today) {
 
 /**
  * @param {darksky.Forecast<darksky.HourlyData>} hourly
+ * @param {Date | null} selectedDay
  *
  * @returns {any}
  */
-function Hourly (hourly) {
-  return wire(hourly)`
+function Hourly (hourly, selectedDay) {
+  /** @type {HTMLElement[]} */
+  const hours = hourly.data.map(Hour)
+
+  /** @type {HTMLElement?} */
+  let selectedNode = null
+
+  if (selectedDay) {
+    // Scroll to 7:00 AM of the selected day
+    const startOfSelectedDay = new Date(selectedDay)
+    startOfSelectedDay.setHours(7)
+
+    const selectedIndex = hourly.data.findIndex(
+      (hour) => hour.time >= startOfSelectedDay
+    )
+
+    selectedNode = selectedIndex > -1 ? hours[selectedIndex] : null
+  }
+
+  const section = wire(hourly)`
     <section class="forecast">
-      ${hourly.data.map(Hour)}
+      ${hours}
     </section>
   `
+
+  section.scrollLeft = selectedNode ? selectedNode.offsetLeft - section.offsetLeft : 0
+
+  return section
 }
 
 /**
