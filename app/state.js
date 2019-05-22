@@ -1,14 +1,4 @@
 /**
- * Geographical location of a weather forecast
- *
- * @typedef {object} WeatherLocation
- * @property {number} lat
- * @property {number} lon
- * @property {string} name
- * @property {string} region
- */
-
-/**
  * State persisted across sessions
  *
  * @typedef {object} PersistentState
@@ -17,35 +7,9 @@
  */
 
 /**
- * Global application state
- *
- * @typedef {object} State
- * @property {WeatherLocation} location
- * @property {WeatherLocation[]} favoriteLocations
- * @property {darksky.Weather | null} weather
- * @property {'myLocation' | 'weather' | 'loading'} screen
- * @property {boolean} fetchError
- */
-
-/** @type {State} */
-const defaultState = {
-  location: {lat: 52.51925, lon: 13.40881, name: 'Berlin', region: ''},
-  favoriteLocations: [],
-  weather: null,
-  screen: 'loading',
-  fetchError: false
-}
-
-/** @returns {State} */
-export function getInitialState () {
-  const storedState = loadState()
-  return Object.assign(defaultState, storedState)
-}
-
-/**
  * @returns {PersistentState=}
  */
-function loadState () {
+export function loadState () {
   try {
     const settings = localStorage.getItem('weather-settings')
     return settings && JSON.parse(settings)

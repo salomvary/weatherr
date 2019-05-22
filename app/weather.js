@@ -3,7 +3,7 @@ import WeatherNavbar from './weather-navbar.js'
 import Icon from './icon.js'
 
 /**
- * @typedef { import('./state.js').State } State
+ * @typedef { import('./store.js').State } State
  */
 
 /**

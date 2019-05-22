@@ -1,7 +1,7 @@
 import {wire} from '/node_modules/hyperhtml/esm.js'
 
 /**
- * @typedef { import('./state.js').WeatherLocation } WeatherLocation
+ * @typedef { import('./store.js').WeatherLocation } WeatherLocation
  */
 
 /**

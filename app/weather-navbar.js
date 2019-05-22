@@ -1,7 +1,7 @@
 import {wire} from '/node_modules/hyperhtml/esm.js'
 
 /**
- * @param {import('./state').WeatherLocation} location
+ * @param {import('./store').WeatherLocation} location
  * @param {(location: string) => void} navigate
  *
  * @returns {any}

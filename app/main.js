@@ -3,11 +3,12 @@
 
 import '/node_modules/fontfaceobserver/fontfaceobserver.standalone.js'
 import {bind} from '/node_modules/hyperhtml/esm.js'
-import {getInitialState, saveState} from './state.js'
+import {loadState, saveState} from './state.js'
+import Store, {equalLocation} from './store.js'
 import App from './app.js'
 
 /**
- * @typedef { import('./state.js').WeatherLocation } WeatherLocation
+ * @typedef { import('./store.js').WeatherLocation } WeatherLocation
  */
 
 /**
@@ -19,9 +20,6 @@ const updateIntervalHours = 1
 
 /** Only show the loading animation after this time in milliseconds */
 const loadingTimeout = 1000
-
-/** Limit favorite locations */
-const maxFavoriteLocations = 5
 
 /**
  * App entry point
@@ -45,7 +43,9 @@ async function main (html) {
     document.body.classList.add('fonts-loaded')
   }
 
-  const state = getInitialState()
+  const store = new Store()
+  store.subscribe(render)
+  store.loadSettings(loadState())
 
   /** @type {(() => void) | null} */
   let clearUpdateSchedule
@@ -58,15 +58,12 @@ async function main (html) {
    */
   async function navigate (route) {
     stopUpdating()
-    state.fetchError = false
 
     if (route === 'my-location') {
-      state.screen = 'myLocation'
-      render()
+      store.navigate('myLocation')
     } else {
-      if (state.weather) {
-        state.screen = 'weather'
-        render()
+      if (store.state.weather) {
+        store.navigate('weather')
       } else {
         refreshWeather()
       }
@@ -80,36 +77,20 @@ async function main (html) {
    * @param {WeatherLocation} newLocation
    */
   function onLocationSelect (newLocation) {
-    if (!equalLocation(newLocation, state.location)) {
-      state.location = newLocation
-      const isFavorite = state.favoriteLocations.some((l) => equalLocation(l, newLocation))
-      if (!isFavorite) {
-        state.favoriteLocations.unshift(newLocation)
-        state.favoriteLocations.splice(maxFavoriteLocations)
-      }
+    if (!equalLocation(newLocation, store.state.location)) {
+      store.setLocation(newLocation)
+      store.addFavorite(newLocation)
       saveState({
-        location: state.location,
-        favoriteLocations: state.favoriteLocations
+        location: store.state.location,
+        favoriteLocations: store.state.favoriteLocations
       })
       refreshWeather()
     }
     window.location.hash = '#'
   }
 
-  /**
-   * @param {WeatherLocation} a
-   * @param {WeatherLocation} b
-   */
-  function equalLocation (a, b) {
-    return (
-      a.lat === b.lat ||
-      a.lon === b.lon ||
-      a.name === b.name
-    )
-  }
-
   function render () {
-    html`${App(state, onLocationSelect, refreshWeather, navigate)}`
+    html`${App(store.state, onLocationSelect, refreshWeather, navigate)}`
   }
 
   async function refreshWeather () {
@@ -117,20 +98,18 @@ async function main (html) {
     loadingTimeoutHandle = setTimeout(showLoading, loadingTimeout)
 
     try {
-      state.weather = truncateWeather(await fetchWeather(getApiUrl(state.location)))
+      store.loadWeather(await fetchWeather(getApiUrl(store.state.location)))
     } catch (e) {
       console.error('Error fetching weather', e)
-      state.fetchError = true
+      store.failFetch()
     } finally {
       clearTimeout(loadingTimeoutHandle)
-      state.screen = 'weather'
+      store.navigate('weather')
     }
-    render()
   }
 
   function showLoading () {
-    state.screen = 'loading'
-    render()
+    store.navigate('loading')
   }
 
   function startUpdating () {
@@ -141,8 +120,7 @@ async function main (html) {
       nextUpdate.setHours(nextUpdate.getHours() + updateIntervalHours, 0, 0, 0)
       console.info(`Scheduled next update at ${nextUpdate}`)
       clearUpdateSchedule = scheduleAt(nextUpdate, async () => {
-        state.weather = truncateWeather(await fetchWeather(getApiUrl(state.location)))
-        render()
+        store.loadWeather(await fetchWeather(getApiUrl(store.state.location)))
         scheduleNextUpdate()
       })
     }
@@ -154,43 +132,6 @@ async function main (html) {
     if (clearUpdateSchedule) {
       clearUpdateSchedule()
       clearUpdateSchedule = null
-    }
-  }
-
-  /**
-   * @param {darksky.Weather} weather
-   * @returns {darksky.Weather}
-   */
-  function truncateWeather (weather) {
-    const now = new Date()
-    const oneHour = 60 * 60 * 1000
-    /**
-     * @param {darksky.HourlyData | darksky.DailyData} dataPoint
-     */
-    const notOlderThanOneHour = function ({time}) {
-      return now.getTime() - time.getTime() < oneHour
-    }
-    /**
-     * @param {darksky.HourlyData | darksky.DailyData} dataPoint
-     */
-    const notOlderThanOneDay = function ({time}) {
-      return now.getTime() - time.getTime() < 24 * oneHour
-    }
-    const hourly = weather.hourly.data.filter(notOlderThanOneHour)
-    const daily = weather.daily.data.filter(notOlderThanOneDay)
-    const [hourlyNow] = hourly
-    let currently
-    if (!notOlderThanOneHour(weather.currently) && hourlyNow) {
-      // Make up a new "currently" from the most recent "hourly"
-      currently = hourlyNow
-    } else {
-      currently = weather.currently
-    }
-
-    return {
-      currently,
-      hourly: {data: hourly},
-      daily: {data: daily}
     }
   }
 }
