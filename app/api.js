@@ -28,9 +28,5 @@ async function fetchApi (url) {
  * @param {import("./store").WeatherLocation} location
  */
 function getApiUrl ({lat, lon}) {
-  const local = window.location.protocol === 'file:' ||
-    window.location.hostname === 'localhost' ||
-    window.location.hostname === '127.0.0.1' ||
-    window.location.hostname.startsWith('192.168.')
-  return local ? 'weather.json' : `https://darksky-proxy.herokuapp.com/${lat},${lon}?units=si`
+  return `https://darksky-proxy.herokuapp.com/${lat},${lon}?units=si`
 }
