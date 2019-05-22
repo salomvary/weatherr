@@ -33,6 +33,9 @@ if (/** @type {any} */ (window).supportedBrowser) {
  * @returns {Promise<void>}
  */
 async function main (html) {
+  /** @type {number} */
+  let loadingTimeoutHandle
+
   const weatherFont = new FontFaceObserver('weathericons')
   try {
     await weatherFont.load()
@@ -50,8 +53,14 @@ async function main (html) {
     store.loadWeather(await fetchWeather(store.state.location))
   })
 
-  /** @type {number} */
-  let loadingTimeoutHandle
+  router(navigate)
+
+  /**
+   * Render the entire app
+   */
+  function render () {
+    html`${App(store.state, onLocationSelect, refreshWeather, navigate, onDaySelect)}`
+  }
 
   /**
    * @param {string} route
@@ -70,8 +79,6 @@ async function main (html) {
       scheduler.startUpdating()
     }
   }
-
-  router(navigate)
 
   /**
    * @param {WeatherLocation} newLocation
@@ -94,10 +101,6 @@ async function main (html) {
    */
   function onDaySelect (day) {
     store.toggleSelectedDay(day)
-  }
-
-  function render () {
-    html`${App(store.state, onLocationSelect, refreshWeather, navigate, onDaySelect)}`
   }
 
   async function refreshWeather () {
