@@ -1,3 +1,4 @@
+/* eslint-disable indent */
 import {wire} from '/node_modules/hyperhtml/esm.js'
 import WeatherNavbar from './weather-navbar.js'
 import Icon from './icon.js'
@@ -12,15 +13,21 @@ import Icon from './icon.js'
  * @param {State} state
  * @param {() => void} onRetry
  * @param {(location: string) => void} navigate
+ * @param {(day: Date) => void} onDaySelect
  *
  * @returns {any}
  */
-export default function WeatherView (state, onRetry, navigate) {
+export default function WeatherView (
+  state,
+  onRetry,
+  navigate,
+  onDaySelect
+) {
   return wire(state, ':weather-view')`
     <div class="view">
       ${WeatherNavbar(state.location, navigate)}
       <article class="page page-with-navbar">
-        ${state.fetchError ? FetchError({onRetry}) : Weather(/** @type {darksky.Weather} */(state.weather))}
+        ${state.fetchError ? FetchError({onRetry}) : Weather(/** @type {darksky.Weather} */(state.weather), state.selectedDay, onDaySelect)}
       </article>
     </div>
   `
@@ -44,16 +51,17 @@ function FetchError (props) {
 
 /**
  * @param {darksky.Weather} weather
- *
+ * @param {Date | null} selectedDay
+ * @param {(day: Date) => void} onDaySelect
  * @returns {any}
  */
-export function Weather (weather) {
+export function Weather (weather, selectedDay, onDaySelect) {
   const [today] = weather.daily.data
   return wire(weather)`
     <div class="weather">
       ${Currently(weather.currently, today || {})}
       ${Hourly(weather.hourly)}
-      ${Daily(weather.daily)}
+      ${Daily(weather.daily, selectedDay, onDaySelect)}
     </div>
   `
 }
@@ -116,13 +124,20 @@ function Hour (hour) {
 
 /**
  * @param {darksky.Forecast<darksky.DailyData>} daily
- *
+ * @param {Date | null} selectedDay
+ * @param {(day: Date) => void} onSelect
  * @returns {any}
  */
-function Daily (daily) {
-  return wire(daily)`
+function Daily (daily, selectedDay, onSelect) {
+  return wire({daily, selectedDay})`
     <section class="forecast">
-      ${daily.data.map(Day)}
+      ${
+        daily.data.map((data) => Day(
+          data,
+          selectedDay != null && (+data.time === +selectedDay),
+          onSelect
+        ))
+      }
     </section>
   `
 }
@@ -190,12 +205,20 @@ function isNextDay (now, date, offset) {
 
 /**
  * @param {darksky.DailyData} day
+ * @param {boolean} isSelected
+ * @param {(day: Date) => void} onSelect
  *
  * @returns {any}
  */
-function Day (day) {
+function Day (day, isSelected, onSelect) {
   return wire(day)`
-    <div class="forecast-item">
+    <div
+      class=${['forecast-item', isSelected ? 'selected' : ''].join(' ')}
+      onclick=${(/** @type {PointerEvent} */ event) => {
+        event.preventDefault()
+        onSelect(day.time)
+      }}
+    >
       <div class="forecast-item-time">${formatDay(day.time)}</div>
       <div class="forecast-item-time">${formatDate(day.time)}</div>
       <div class="forecast-item-highlow">

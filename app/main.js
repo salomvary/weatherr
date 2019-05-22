@@ -89,8 +89,15 @@ async function main (html) {
     window.location.hash = '#'
   }
 
+  /**
+   * @param {Date} day
+   */
+  function onDaySelect (day) {
+    store.toggleSelectedDay(day)
+  }
+
   function render () {
-    html`${App(store.state, onLocationSelect, refreshWeather, navigate)}`
+    html`${App(store.state, onLocationSelect, refreshWeather, navigate, onDaySelect)}`
   }
 
   async function refreshWeather () {

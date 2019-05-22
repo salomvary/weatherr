@@ -16,15 +16,21 @@ import Icon from './icon.js'
  * @param {(location: WeatherLocation) => void} onLocationSelect
  * @param {() => void} onRetryFetchWeather
  * @param {(location: string) => void} navigate
- *
+ * @param {(day: Date) => void} onDaySelect
  * @returns {any}
  */
-export default function App (state, onLocationSelect, onRetryFetchWeather, navigate) {
+export default function App (
+  state,
+  onLocationSelect,
+  onRetryFetchWeather,
+  navigate,
+  onDaySelect
+) {
   return wire(state, ':app')`${
     /** @type {Object.<string, (state: State) => any>} */
     ({
       loading: (state) => LoadingView(state.location, navigate),
-      weather: (state) => WeatherView(state, onRetryFetchWeather, navigate),
+      weather: (state) => WeatherView(state, onRetryFetchWeather, navigate, onDaySelect),
       myLocation: () => LocationSearchView(state.favoriteLocations, onLocationSelect, navigate)
     })[state.screen](state)}`
 }

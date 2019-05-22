@@ -7,7 +7,8 @@ const defaultState = {
   favoriteLocations: [],
   weather: null,
   screen: 'loading',
-  fetchError: false
+  fetchError: false,
+  selectedDay: null
 }
 
 export default class Store {
@@ -75,6 +76,18 @@ export default class Store {
   }
 
   /**
+   * @param {Date} day
+   */
+  toggleSelectedDay (day) {
+    if (!this.state.selectedDay || +day !== +this.state.selectedDay) {
+      this.state.selectedDay = day
+    } else {
+      this.state.selectedDay = null
+    }
+    this.notify()
+  }
+
+  /**
    * @param {WeatherLocation} location
    */
   addFavorite (location) {
@@ -110,6 +123,7 @@ export default class Store {
  * @property {darksky.Weather | null} weather
  * @property {'myLocation' | 'weather' | 'loading'} screen
  * @property {boolean} fetchError
+ * @property {Date | null} selectedDay
  */
 
 /**
