@@ -7,6 +7,7 @@ import {loadState, saveState} from './state.js'
 import Store, {equalLocation} from './store.js'
 import App from './app.js'
 import {fetchWeather} from './api.js'
+import createScheduler from './scheduler.js'
 
 /**
  * @typedef { import('./store.js').WeatherLocation } WeatherLocation
@@ -15,9 +16,6 @@ import {fetchWeather} from './api.js'
 /**
  * Configuration
  */
-
-/** The positive integer update frequency in hours */
-const updateIntervalHours = 1
 
 /** Only show the loading animation after this time in milliseconds */
 const loadingTimeout = 1000
@@ -48,8 +46,9 @@ async function main (html) {
   store.subscribe(render)
   store.loadSettings(loadState())
 
-  /** @type {(() => void) | null} */
-  let clearUpdateSchedule
+  const scheduler = createScheduler(async () => {
+    store.loadWeather(await fetchWeather(store.state.location))
+  })
 
   /** @type {number} */
   let loadingTimeoutHandle
@@ -58,7 +57,7 @@ async function main (html) {
    * @param {string} route
    */
   async function navigate (route) {
-    stopUpdating()
+    scheduler.stopUpdating()
 
     if (route === 'my-location') {
       store.navigate('myLocation')
@@ -68,7 +67,7 @@ async function main (html) {
       } else {
         refreshWeather()
       }
-      startUpdating()
+      scheduler.startUpdating()
     }
   }
 
@@ -118,60 +117,6 @@ async function main (html) {
 
   function showLoading () {
     store.navigate('loading')
-  }
-
-  function startUpdating () {
-    stopUpdating()
-
-    function scheduleNextUpdate () {
-      const nextUpdate = new Date()
-      nextUpdate.setHours(nextUpdate.getHours() + updateIntervalHours, 0, 0, 0)
-      console.info(`Scheduled next update at ${nextUpdate}`)
-      clearUpdateSchedule = scheduleAt(nextUpdate, async () => {
-        store.loadWeather(await fetchWeather(store.state.location))
-        scheduleNextUpdate()
-      })
-    }
-
-    scheduleNextUpdate()
-  }
-
-  function stopUpdating () {
-    if (clearUpdateSchedule) {
-      clearUpdateSchedule()
-      clearUpdateSchedule = null
-    }
-  }
-}
-
-/**
- * Run callback at time or a bit later but never earlier
- *
- * @param {Date} time
- * @param {() => void} callback
- * @returns {() => void} function to clear the schedule
- */
-function scheduleAt (time, callback) {
-  /** @type {number} */
-  let handle
-
-  /**
-   * @param {Date} time
-   * @param {() => void} callback
-   */
-  function _scheduleAt (time, callback) {
-    const remainingTime = +time - +new Date()
-    if (remainingTime > 0) {
-      handle = setTimeout(() => _scheduleAt(time, callback), remainingTime)
-    } else {
-      callback()
-    }
-  }
-
-  _scheduleAt(time, callback)
-
-  return function clearSchedule () {
-    clearTimeout(handle)
   }
 }
 
