@@ -6,6 +6,7 @@ import {bind} from '/node_modules/hyperhtml/esm.js'
 import {loadState, saveState} from './state.js'
 import Store, {equalLocation} from './store.js'
 import App from './app.js'
+import {fetchWeather} from './api.js'
 
 /**
  * @typedef { import('./store.js').WeatherLocation } WeatherLocation
@@ -105,7 +106,7 @@ async function main (html) {
     loadingTimeoutHandle = setTimeout(showLoading, loadingTimeout)
 
     try {
-      store.loadWeather(await fetchWeather(getApiUrl(store.state.location)))
+      store.loadWeather(await fetchWeather(store.state.location))
     } catch (e) {
       console.error('Error fetching weather', e)
       store.failFetch()
@@ -127,7 +128,7 @@ async function main (html) {
       nextUpdate.setHours(nextUpdate.getHours() + updateIntervalHours, 0, 0, 0)
       console.info(`Scheduled next update at ${nextUpdate}`)
       clearUpdateSchedule = scheduleAt(nextUpdate, async () => {
-        store.loadWeather(await fetchWeather(getApiUrl(store.state.location)))
+        store.loadWeather(await fetchWeather(store.state.location))
         scheduleNextUpdate()
       })
     }
@@ -182,34 +183,4 @@ function router (onChange) {
   const hash = () => window.location.hash.substring(1)
   window.addEventListener('hashchange', () => onChange(hash()))
   onChange(hash())
-}
-
-/**
- * @param {WeatherLocation} location
- */
-function getApiUrl ({lat, lon}) {
-  const local = window.location.protocol === 'file:' ||
-    window.location.hostname === 'localhost' ||
-    window.location.hostname === '127.0.0.1' ||
-    window.location.hostname.startsWith('192.168.')
-  return local ? 'weather.json' : `https://darksky-proxy.herokuapp.com/${lat},${lon}?units=si`
-}
-
-/**
- * @param {string} url
- */
-async function fetchWeather (url) {
-  const response = await fetch(url)
-  if (response.ok) {
-    const body = await response.text()
-    return JSON.parse(body, function reviver (k, v) {
-      if (k === 'time' && typeof v === 'number') {
-        return new Date(v * 1000)
-      } else {
-        return v
-      }
-    })
-  } else {
-    throw new Error(`Unexpected response status when fetching weather: ${response.status}`)
-  }
 }
