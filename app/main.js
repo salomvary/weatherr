@@ -50,7 +50,11 @@ async function main (html) {
   store.loadSettings(loadState())
 
   const scheduler = createScheduler(async () => {
-    store.loadWeather(await fetchWeather(store.state.location))
+    try {
+      store.loadWeather(await fetchWeather(store.state.location))
+    } catch (e) {
+      console.error('Error updating weather', e)
+    }
   })
 
   router(navigate)
