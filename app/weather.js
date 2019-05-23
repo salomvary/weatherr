@@ -99,6 +99,9 @@ function Currently (currently, today) {
  * @returns {any}
  */
 function Hourly (hourly, selectedDay) {
+  /** Use this margin when scrolling to a day */
+  const margin = 8
+
   /** @type {HTMLElement[]} */
   const hours = hourly.data.map(Hour)
 
@@ -123,7 +126,7 @@ function Hourly (hourly, selectedDay) {
     </section>
   `
 
-  section.scrollLeft = selectedNode ? selectedNode.offsetLeft - section.offsetLeft : 0
+  section.scrollLeft = selectedNode ? selectedNode.offsetLeft - section.offsetLeft - margin : 0
 
   return section
 }
@@ -236,7 +239,7 @@ function isNextDay (now, date, offset) {
 function Day (day, isSelected, onSelect) {
   return wire(day)`
     <div
-      class=${['forecast-item', isSelected ? 'selected' : ''].join(' ')}
+      class=${['forecast-item', 'day', isSelected ? 'selected' : ''].join(' ')}
       onclick=${(/** @type {PointerEvent} */ event) => {
         event.preventDefault()
         onSelect(day.time)

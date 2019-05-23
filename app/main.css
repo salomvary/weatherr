@@ -273,6 +273,7 @@ main {
 
 .forecast-item {
   margin: 8px;
+  min-width: 65px;
   text-align: center;
   flex: 1 0 auto;
   cursor: default;
@@ -300,6 +301,10 @@ main {
 .forecast-item-icon {
   font-size: 38px;
   margin: 0.25em 0;
+}
+
+.day {
+  min-width: 70px;
 }
 
 @media (min-height: 600px) {
