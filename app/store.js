@@ -44,6 +44,7 @@ export default class Store {
    * @param {darksky.Weather} weather
    */
   loadWeather (weather) {
+    this.state.fetchError = false
     this.state.weather = truncateWeather(weather)
     this.notify()
   }
@@ -63,7 +64,6 @@ export default class Store {
    */
   navigate (screen) {
     this.state.screen = screen
-    this.state.fetchError = false
     this.notify()
   }
 
