@@ -14,6 +14,7 @@ export default function createScheduler (fn) {
     function scheduleNextUpdate () {
       const nextUpdate = new Date()
       nextUpdate.setHours(nextUpdate.getHours() + updateIntervalHours, 0, 0, 0)
+      // nextUpdate.setSeconds(nextUpdate.getSeconds() + 5)
       console.info(`Scheduled next update at ${nextUpdate}`)
       clearUpdateSchedule = scheduleAt(nextUpdate, () => {
         fn()
