@@ -79,12 +79,23 @@ export default class Store {
    * @param {Date} day
    */
   toggleSelectedDay (day) {
-    if (!this.state.selectedDay || +day !== +this.state.selectedDay) {
-      this.state.selectedDay = day
-    } else {
-      this.state.selectedDay = null
+    // Ignore toggle on days we don't have any hourly forecast for
+    if (
+      this.state.weather &&
+      this.state.weather.hourly.data.some(
+        (hour) => hour.time.getTime() >= day.getTime()
+      )
+    ) {
+      if (
+        !this.state.selectedDay ||
+        +day !== +this.state.selectedDay
+      ) {
+        this.state.selectedDay = day
+      } else {
+        this.state.selectedDay = null
+      }
+      this.notify()
     }
-    this.notify()
   }
 
   /**
