@@ -1,0 +1,1 @@
+export function loadState(){try{const e=localStorage.getItem("weather-settings");return e&&JSON.parse(e)}catch(t){return undefined}}export function saveState(t){try{localStorage.setItem("weather-settings",JSON.stringify(t))}catch(e){}}
