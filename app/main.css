@@ -272,11 +272,19 @@ main {
 }
 
 .forecast-item {
-  margin: 8px;
+  margin: 8px 1px;
   min-width: 65px;
   text-align: center;
   flex: 1 0 auto;
   cursor: default;
+}
+
+.forecast-item:first-child {
+  margin-left: 8px;
+}
+
+.forecast-item:last-child {
+  margin-right: 8px;
 }
 
 .forecast-item-time {
@@ -307,7 +315,12 @@ main {
   min-width: 70px;
 }
 
-@media (min-height: 600px) {
+@media (min-height: 600px) and (min-width: 380px) {
+  .forecast-item {
+    margin-left: 4px;
+    margin-right: 4px;
+  }
+
   .forecast-item-time {
     font-size: 14px;
   }
