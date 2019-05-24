@@ -180,38 +180,68 @@ function Temperature (props) {
   `
 }
 
-/**
- * @param {Date} time
- *
- * @returns {string}
- */
-function formatHour (time) {
-  return time.toLocaleTimeString('en-US-u-hc-h24', {hour: '2-digit', minute: '2-digit'})
-}
-
-/**
- * @param {Date} day
- *
- * @returns {string}
- */
-function formatDay (day) {
-  const now = new Date()
-  if (isNextDay(now, day, 0)) {
-    return 'Today'
-  } else if (isNextDay(now, day, 1)) {
-    return 'Tomorrow'
-  } else {
-    return day.toLocaleDateString('en-US', {weekday: 'long'})
+const formatHour = memoize(
+  /**
+   * @param {Date} time
+   *
+   * @returns {string}
+   */
+  function formatHour (time) {
+    return time.toLocaleTimeString('en-US-u-hc-h24', {hour: '2-digit', minute: '2-digit'})
   }
-}
+)
 
+const formatDay = memoize(
+  /**
+   * @param {Date} day
+   *
+   * @returns {string}
+   */
+  function formatDay (day) {
+    const now = new Date()
+    if (isNextDay(now, day, 0)) {
+      return 'Today'
+    } else if (isNextDay(now, day, 1)) {
+      return 'Tomorrow'
+    } else {
+      return day.toLocaleDateString('en-US', {weekday: 'long'})
+    }
+  }
+)
+
+const formatDate = memoize(
+  /**
+   * @param {Date} day
+   *
+   * @returns {string}
+   */
+  function formatDate (day) {
+    return day.toLocaleDateString('en-US', {month: '2-digit', day: '2-digit'})
+  }
+)
+
+// Fix toLocaleDateString performance issues on Chrome by memoization
 /**
- * @param {Date} day
- *
- * @returns {string}
+ * @template {object} In
+ * @template Out
+ * @param {(arg: In) => Out} fn
  */
-function formatDate (day) {
-  return day.toLocaleDateString('en-US', {month: '2-digit', day: '2-digit'})
+function memoize (fn) {
+  const cache = new WeakMap()
+  /**
+   * @param {In} arg
+   * @returns {Out}
+   */
+  function memoized (arg) {
+    let ret = cache.get(/** @type {object} */ (arg))
+    if (!ret) {
+      ret = fn(arg)
+      cache.set(/** @type {object} */ (arg), ret)
+    }
+    return ret
+  }
+
+  return memoized
 }
 
 /**
